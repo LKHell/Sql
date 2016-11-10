@@ -9,7 +9,7 @@ SELECT *
 FROM Student
 WHERE age=(SELECT MIN(age) FROM Student)
 
-3//////改要求 name like English
+3//////赂脛脪陋脟贸 name like English
 SELECT Coursename 
 FROM Course
 WHERE Coursename Like '%English%'
