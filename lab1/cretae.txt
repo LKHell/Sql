@@ -1,23 +1,23 @@
 CREATE TABLE Student
 (
-	StudentID VARCHAR(20) PRIMARY KEY,
-	StudentName VARCHAR(10),
+	SID VARCHAR(20) PRIMARY KEY,
+	SName VARCHAR(10),
 	Age INT,
-	Department VARCHAR(30)
+	Depart VARCHAR(30)
 );
 
 CREATE TABLE Course
 (
-	CourseID VARCHAR(15) PRIMARY KEY,
-	CourseName VARCHAR(30),
+	CID VARCHAR(15) PRIMARY KEY,
+	CName VARCHAR(30),
 	Credit INT,
-	CourseBefore VARCHAR(15)
+	CBefore VARCHAR(15)
 );
 
 CREATE TABLE Choose
 (
-	StudentID VARCHAR(20) ,
-	CourseID VARCHAR(15) ,
+	SID VARCHAR(20) ,
+	CID VARCHAR(15) ,
 	Score Dec(5,2),
 	PRIMARY KEY (StudentID , CourseID)
 );
