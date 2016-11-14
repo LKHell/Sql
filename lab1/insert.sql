@@ -24,7 +24,7 @@ VALUES		(001,'Math',5,NULL),
 			(007,'Java',3,006),
 			(008,'InformationSystem',3,006),
 			(009,'Database',4,008),
-			(010,'History',18,NULL);
+			(010,'History',8,NULL);
 			
 
 INSERT

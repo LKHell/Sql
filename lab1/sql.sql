@@ -11,7 +11,7 @@ SELECT *
 FROM Student
 WHERE age=(SELECT MIN(age) FROM Student)
 
-3//////course name like English
+3//////Course name like English
 SELECT CName 
 FROM Course
 WHERE CName Like '%English%'
@@ -43,7 +43,7 @@ WHERE Sno not IN
 			WHERE SC.Cno=Course.Cno
 			AND CName ='Database'
 		)
-		AND department = 'CS';
+		AND Depart = 'CS';
 
 8/ 20160005
 SELECT DISTINCT Sno
@@ -60,7 +60,7 @@ WHERE NOT EXISTS
 		WHERE CZ.Sno=CX.Sno AND 
 				CZ.Cno=CY.Cno
 	)
-)
+);
 
 
 9/
@@ -69,13 +69,23 @@ FROM Student
 ORDER BY Depart DESC;
 
 10/
-SELECT Student.Sno , Score
-FROM Student,SC
-WHERE Student.Sno=SC.Sno
-AND CNO = 9 AND 
-Score>(SELECT avg(Score) 
-	FROM SC 
-	WHERE CNO=9
+SELECT Sno , Score
+FROM SC X
+WHERE 
+	Cno=(
+	SELECT CNO 
+	FROM Course 
+	WHERE CName='Database'
+	) 
+AND 
+	Score>(SELECT avg(Score) 
+	FROM SC Y
+	WHERE  Cno=(
+		 SELECT CNO 
+		 FROM Course 
+		 WHERE CName='Database'
+		) 
+
  );
 
 
@@ -90,7 +100,7 @@ WHERE Cno=
 	SELECT Cno
 	FROM Course
 	WHERE CName='Database'
-)
+);
 
 12/
 
@@ -119,8 +129,8 @@ WHERE
 	Cno =2;
 
 14/
-DELETE Cno
-FROM COURSE
+DELETE 
+FROM Course
 WHERE Cno NOT IN(
 	SELECT DISTINCT SC.Cno
 	FROM SC ,Course
@@ -140,3 +150,23 @@ HAVING AVG(Score)>80;
 
 
 17/
+CREATE VIEW S_NULL AS 
+SELECT Sno,SName ,Depart  
+FROM Student
+WHERE Sno NOT IN 
+(
+	SELECT Sno
+	FROM SC
+);
+
+18/
+CREATE VIEW S_2MAX AS
+SELECT Score
+FROM Student,SC
+WHERE 
+CNO = 2 AND 
+Score>(SELECT avg(Score) 
+	FROM SC 
+	WHERE Cno=2
+ );
+

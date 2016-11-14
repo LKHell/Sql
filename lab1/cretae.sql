@@ -12,7 +12,7 @@ CREATE TABLE Course
 (
 	Cno VARCHAR(15) PRIMARY KEY,
 	CName VARCHAR(30),
-	Credit INT  CHECK (Age>0 AND AGE<10),
+	Credit INT  CHECK (Credit>0 AND Credit<10),
 	CBefore VARCHAR(15) /*coursebefore*/
 );
 
