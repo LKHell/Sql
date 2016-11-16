@@ -1,8 +1,8 @@
 CREATE TABLE Student
 (
-	Sno VARCHAR(20) PRIMARY KEY, /*studentid*/
-	SName VARCHAR(10),
-	Age INT CHECK (Age>21 AND AGE<25),
+	Sno VARCHAR(10) PRIMARY KEY, /*studentid*/
+	SName VARCHAR(20),
+	Age INT CHECK (Age>=21 AND AGE<=25),
 	Sex CHAR(6) CHECK (Sex='Male' OR Sex='Female'),
 	Depart VARCHAR(30)  /*department*/
 	
