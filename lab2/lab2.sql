@@ -87,3 +87,48 @@ EXEC Insert_Student '20160101','CXSDZZ','MALE',22,'ISS'
 /* SNO , SNAME ,SEX,AGE,DEPARTMENT */
 
 7/
+CREATE PROCEDURE Score_Database
+@SName VARCHAR(20)
+ AS
+BEGIN
+	SELECT Score
+	FROM SC,Student,Course 
+	WHERE 
+	Student.Sno=SC.Sno
+	AND
+	SC.Cno=Course.Cno
+	AND
+	CName='Database'
+	AND
+	SName=@SName;
+END
+
+
+EXEC Score_Database 'ZhaoC'
+
+8/
+CREATE PROCEDURE Score_AVG
+@CName VARCHAR(20)
+ AS
+BEGIN
+	SELECT Sno , Score
+FROM SC 
+WHERE 
+	Cno=(
+	SELECT CNO 
+	FROM Course 
+	WHERE CName=@CName
+	) 
+AND 
+	Score>(SELECT avg(Score) 
+	FROM SC 
+	WHERE  Cno=(
+		 SELECT CNO 
+		 FROM Course 
+		 WHERE CName=@CName
+		) 
+
+ );
+END
+
+EXEC Score_AVG 'ENGLISH'
