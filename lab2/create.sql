@@ -18,7 +18,7 @@ CREATE TABLE Course
 
 CREATE TABLE SC
 (
-	Sno VARCHAR(20) ,
+	Sno VARCHAR(10) ,
 	Cno VARCHAR(15) ,
 	Score Dec(5,2) CHECK(Score>0 AND Score<100),
 	PRIMARY KEY (Sno , Cno),
