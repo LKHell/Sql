@@ -1,0 +1,12 @@
+delete from detail;
+delete from detail;
+delete from pa_task;
+delete from contractual;
+delete from pot_supplier;
+delete from product;
+delete from purchase_order;
+delete from responsible;
+delete from pa_agent;
+delete from component;
+delete from supplier;
+delete from part;
