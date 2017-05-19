@@ -1,0 +1,11 @@
+//part_id, part_name, stock_qty, order_qty, min_qty, unit, unit_price) will be skip=1
+2001,Engine, , ,0,$,1000
+2002,Engine_Computer, , , ,$,500
+2003,Engine_Core,,,,$,100,
+2011,Transmission, , ,2,$,300
+2012,Front_Drive_Shaft,,,
+2013,Rear_Drive_Shaft, , ,2,$,300
+2021,Front_Axle_Shaft, , ,10,$,200
+2031,Front_End_Assembly, , ,15,$,100
+2041,Whell, , ,20,$,150
+2051,Rear_Clip, , ,100,$,100

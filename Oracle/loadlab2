@@ -1,11 +1,11 @@
-sqlldr userid=ora00079/QCe6eu control=pa_agent log=pa_agent
-sqlldr userid=ora00079/QCe6eu control=part log=part
-sqlldr userid=ora00079/QCe6eu control=component log=component
-sqlldr userid=ora00079/QCe6eu control=supplier log=supplier
-sqlldr userid=ora00079/QCe6eu control=product log=product
-sqlldr userid=ora00079/QCe6eu control=responsible log=responsible
-sqlldr userid=ora00079/QCe6eu control=pot_supplier log=pot_supplier
-sqlldr userid=ora00079/QCe6eu control=purchase_order log=purchase_order
-sqlldr userid=ora00079/QCe6eu control=contractual log=contractual
-sqlldr userid=ora00079/QCe6eu control=pa_task log=pa_task
-sqlldr userid=ora00079/QCe6eu control=detail log=detail
+sqlldr userid=ora00079/QCe6eu control=pa_agent log=pa_agent skip=1
+sqlldr userid=ora00079/QCe6eu control=part log=part skip=1
+sqlldr userid=ora00079/QCe6eu control=component log=component skip=1
+sqlldr userid=ora00079/QCe6eu control=supplier log=supplier skip=1
+sqlldr userid=ora00079/QCe6eu control=product log=product skip=1
+sqlldr userid=ora00079/QCe6eu control=responsible log=responsible skip=1
+sqlldr userid=ora00079/QCe6eu control=pot_supplier log=pot_supplier skip=1
+sqlldr userid=ora00079/QCe6eu control=purchase_order log=purchase_order skip=1
+sqlldr userid=ora00079/QCe6eu control=contractual log=contractual skip=1
+sqlldr userid=ora00079/QCe6eu control=pa_task log=pa_task skip=1
+sqlldr userid=ora00079/QCe6eu control=detail log=detail skip=1
