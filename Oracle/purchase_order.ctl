@@ -1,5 +1,5 @@
 LOAD DATA
-INFILE 'pa_agent.dat'
-INTO TABLE pa_agent
+INFILE 'purchase_order.dat'
+INTO TABLE purchase_order
 FIELDS TERMINATED BY ','
-(emp_num,pa_name)
+(po_number,po_date,total,status)

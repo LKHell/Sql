@@ -1,0 +1,7 @@
+product_id,supplier_id,product_name,unit,unit_price
+0001,4001,proA,1,25
+0002,4002,proB,1,48
+0003,4003,proC,3,62
+0004,4004,proD,2,34
+0005,4005,proE,1,77
+0006,4006,proF,2,92
