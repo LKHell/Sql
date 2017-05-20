@@ -1,7 +1,7 @@
 supplier_id,supplier_name,addr,contact
-4001,supplierA,Beijing,9558101
-4002,supplierB,Shanghai,9558102
-4003,supplierC,Tianjin,9558103
-4004,supplierD,Chongqing,9558104
-4005,supplierE,Qingdao,9558105
-4006,supplierF,Dalian,9558106
+4001,supplierA,Beijing,9558101,
+4002,supplierB,Shanghai,9558102,
+4003,supplierC,Tianjin,9558103,
+4004,supplierD,Chongqing,9558104,
+4005,supplierE,Qingdao,9558105,
+4006,supplierF,Dalian,9558106,
