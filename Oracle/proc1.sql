@@ -9,7 +9,7 @@ declare
      	end; 
 
 begin
-    my_part_id := 1001;		-- initialize part_id of part2
+    my_part_id := 2001;		-- initialize part_id of part2
     mod_status (my_part_id);
     commit;
 end;
