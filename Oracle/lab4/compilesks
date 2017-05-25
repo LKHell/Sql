@@ -1,0 +1,1 @@
+gcc lab4sks.c -o lab4sks -include /$ORACLE_HOME/precomp/public/sqlca.h -lclntsh -B$ORACLE_HOME/lib/ -B$ORACLE_HOME/lib
