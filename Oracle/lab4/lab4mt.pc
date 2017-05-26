@@ -42,17 +42,19 @@ int main()
         {
          switch (print_menu())
          {
-          case 1: lispart();
+          case '1': lispart();
                   break;
        
-          case 2: explosion();
+          case '2': explosion();
                   break;
-          case 3: implosion();
+          case '3': implosion();
                   break;
         
-          case 5: print_menu();
+          case '5': print_menu();
                   break;
-          case 6: puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
+          case '6': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
+                exit(0);
+          case '0': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
                 exit(0);
           default: puts("\n =====> Enter a digit from the menu please ?");
                    break;
@@ -158,11 +160,10 @@ int     my_partid, none=1;
 
 void explosion()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
-        {
+int     my_partid_componet, my_partid;
+char    description[16];        /* 1 more octet for the binary 0 */
+               /* infinite loop until user enter a 0 */
+        for(;;){
                 printf("Number of the part (0 to quit )? ");
                 scanf("%d",&my_partid);         
 
@@ -170,38 +171,35 @@ int     my_partid, none=1;
                 if (my_partid == 0) 
                 { 
                         EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
+                        printf("End of this transaction,get input 0\n");
+                        getchar(); 
+                        break;       
                 } 
+                        
+        EXEC SQL DECLARE c1 cursor for
+                SELECT componentid, part_name
+                FROM ora00079.part,ora00079.component
+                WHERE componentid=part_id AND partid= :my_partid ;
+        
+        EXEC SQL open c1;
 
-/*-------------- Beginning the PL/SQL block -----------------*/ 
+        EXEC SQL WHENEVER NOT FOUND do break;
+        
+        printf("\tPart ID\tName of Part\t\n");
+            
+        for (;;)
+        {
+                EXEC SQL fetch c1 into :my_partid_componet, :description;
 
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT componentid INTO :description      /* note: description needs 1 octet more */
-                FROM ora00079.component WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
-        EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
-        return; 
+                printf("\t%d\t%s\n",my_partid_componet, description);
+        }
+        
+        printf("End of this transaction\n");
+        EXEC SQL close c1;                      
+        EXEC SQL COMMIT;                /* free locks and keep the connection */
+        getchar();  //
+        }
+        return;
 }
 /* ******************************************************************************************
 *       Function to display all parts (part_id1, name) where a given part (part_id) is a component
@@ -210,11 +208,10 @@ int     my_partid, none=1;
 
 void implosion()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
-        {
+int     my_partid_componet, my_partid;
+char    description[16];        /* 1 more octet for the binary 0 */
+               /* infinite loop until user enter a 0 */
+        for(;;){
                 printf("Number of the part (0 to quit )? ");
                 scanf("%d",&my_partid);         
 
@@ -222,38 +219,38 @@ int     my_partid, none=1;
                 if (my_partid == 0) 
                 { 
                         EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
+                        printf("End of this transaction,get input 0\n");
+                        getchar(); 
+                        break;       
                 } 
+                        
+        // EXEC SQL DECLARE c2 cursor for
+        //         SELECT componentid, part_name
+        //         FROM part,component
+        //         WHERE componentid=part_id AND partid= :my_partid ;
+            EXEC SQL DECLARE c2 cursor for
+                SELECT partid, part_name
+                FROM ora00079.part,ora00079.component
+                WHERE partid=part_id AND componentid= :my_partid ;
+        EXEC SQL open c2;
 
-/*-------------- Beginning the PL/SQL block -----------------*/ 
+        EXEC SQL WHENEVER NOT FOUND do break;
+        
+        printf("\tPart ID\tName of Part\t\n");
+            
+        for (;;)
+        {
+                EXEC SQL fetch c2 into :my_partid_componet, :description;
 
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
-        EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
-        return; 
+                printf("\t%d\t%s\n",my_partid_componet, description);
+        }
+        
+        printf("End of this transaction\n");
+        EXEC SQL close c2;                      
+        EXEC SQL COMMIT;                /* free locks and keep the connection */
+        getchar();  //
+        }
+        return;
 }
 
 
@@ -264,7 +261,8 @@ int     my_partid, none=1;
 
 int print_menu()
 {
-   int choice;                          /* id of menu */
+   char choice;                          /* id of menu */
+        //input a char if it is int type ,and it would dead loop;
         printf("\n\t Choose a transaction by entering a number \n");
         printf("\t *****************************************\n");
         printf("\t (1) LISPART\n");
@@ -272,8 +270,8 @@ int print_menu()
         printf("\t (3) implosion\n");
         
         printf("\t (5) DISPLAY MENU\n");
-        printf("\t (6) QUIT\n");
+        printf("\t (6/0) QUIT\n");
         printf("Enter your choice ? "); 
-        scanf("%d",&choice);            /* read the choice */
+        scanf("%c",&choice);            /* read the choice */
         return choice;
 }
