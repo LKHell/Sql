@@ -16,11 +16,11 @@
  
 void sql_error();
 void do_connect();
-void lispart();
-void respon();
-void modstat();
-void deletion();
-void explosion();
+
+void part_out();
+void pord_in();
+void list_po();
+
 int print_menu();
 
 int main()
@@ -37,15 +37,13 @@ int main()
         {
          switch (print_menu())
          {
-          case 1: lispart();
+          case 1: part_out();
                   break;
-        //   case 2: respon();
-          case 2: explosion();
+          case 2: pord_in();
                   break;
-          case 3: modstat();
+          case 3: list_po();
                   break;
-          case 4: deletion();
-                  break;
+         
           case 5: print_menu();
                   break;
           case 6: puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
@@ -96,63 +94,14 @@ void do_connect()
 }
 
 /* ******************************************************************************************
-*       Function to display the contents of a given part
+*       Display the detail of a given purchase order (po_number): 
+        po_number, date, purchasing agent_name, supplier number, name, address, contact,list of all ordered products 
+        ( product_id, prod_name, prod_ unit,unit_price , qty ordered, qty_received), 
+        total, status of the purchase order.
 *  ******************************************************************************************
 */
 
-void lispart()
-{
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
-        {
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
-
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
-                } 
-
-/*-------------- Beginning the PL/SQL block -----------------*/ 
-
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
-        EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
-        return; 
-}
-/* ******************************************************************************************
-*       Function to display the contents of a given part
-*  ******************************************************************************************
-*/
-
-void explosion()
+void list_po()
 {
 char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
@@ -200,118 +149,25 @@ int     my_partid, none=1;
         return; 
 }
 
-/* *************************************************************
-*       Function to display each part with the responsible agent
-*  *************************************************************
+/* ******************************************************************************************
+*      A given part (part_id) is updated (qty_stock) when some qty are taken out
+*  ******************************************************************************************
 */
 
-void respon()
+void part_out()
 {
-int     my_emp_num, my_partid;
-char    description[16];        /* 1 more octet for the binary 0 */
-char    my_pa_name[16];         /* 1 more octet for the binary 0 */
-                        
-        EXEC SQL declare c1 cursor for
-                select p.part_id, p.part_name, pa.emp_num, pa.pa_name 
-                from part p, responsible r, pa_agent pa 
-                where pa.emp_num=r.emp_number and p.part_id=r.part_number;
-        
-        EXEC SQL open c1;
-
-        EXEC SQL WHENEVER NOT FOUND do break;
-        
-        printf("\tPart ID\tName of Part\t\tEmp Number\tAgent\n");       
-        for (;;)
-        {
-                EXEC SQL fetch c1 into :my_partid, :description, :my_emp_num, :my_pa_name ;
-
-                printf("\t%4d\t%s\t\t%4d\t%s\n",my_partid, description,my_emp_num,my_pa_name);
-        }
-        
-        printf("End of this transaction\n");
-        EXEC SQL close c1;                      
-        EXEC SQL COMMIT;                /* free locks and keep the connection */
         return;
 }
 
 /* ******************************************************************************************
-*       Function modifying the status of a part
+*       The corresponding part (part_id, stock_qty, order_qty ) of a product 
+*       (product_id, unit,qty_received) delivered by the supplier (supplier_id)
+*       following a purchase order (purchase_order_number) is updated) and the
+*       detail of the purchase order (qty_rec) is also updated for each product received
 *  ******************************************************************************************
 */
-
-void modstat()
+void pord_in()
 {
-int     num, status;    
-        for (;;)
-        {
-                printf("Enter the part id to change its status (0 to exit)? ");
-                scanf("%d",&num);
-                if (num == 0) 
-                {
-                        printf("End of this transaction\n"); 
-                        return; 
-                } 
-
-/*-------------- beginning of PL/SQL block with local procedure  -----------------*/ 
-
-                EXEC SQL EXECUTE
-                DECLARE         
-                procedure mod_status(no IN integer, stat OUT integer) is
-                BEGIN
-                        stat := 1;
-                        update part2 set status='I' where part_id = no;
-                        if SQL%NOTFOUND then stat:=0; 
-                        end if;                                                 
-                END; 
-                BEGIN           -- execution part       
-                        mod_status(:num, :status);                      
-                        commit;                                 
-                END;
-                END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (status==0)  
-           {
-                printf("Record not found \n");  
-           }
-        else    printf("Modification done\n"); 
-        }
-        return;
-}
-
-/* *******************************************************************************
-*       Function to delete a part from the table part2 ; the stocked procedure
-*       must be created before this block
-*  *******************************************************************************
-*/
-
-void deletion()
-{
-int     num, stat=1;    
-        for (;;)
-        {
-        printf("\nEnter the number of the part in part2 to be deleted (0 to quit)? ");
-        scanf("%d",&num);
-        if (num == 0) 
-        {
-                printf("End of this transaction\n"); 
-                return; 
-        }
-        EXEC SQL EXECUTE
-        BEGIN
-                del_part2(:num);
-                if SQL%NOTFOUND then :stat:=0;
-                end if;
-                commit;
-        END;
-        END-EXEC;
-        if (stat==0)  
-        {
-         printf("part not found \n");   
-        }
-        else    printf("Part deleted\n");
-        }
         return;
 }
 
@@ -325,10 +181,10 @@ int print_menu()
    int choice;                          /* id of menu */
         printf("\n\t Choose a transaction by entering a number \n");
         printf("\t *****************************************\n");
-        printf("\t (1) LISPART\n");
-        printf("\t (2) explosion\n");
-        printf("\t (3) MODSTAT\n");
-        printf("\t (4) DELETION\n");
+        printf("\t (1) Part out\n");
+        printf("\t (2) Pord in\n");
+        printf("\t (3) List po\n");
+ 
         printf("\t (5) DISPLAY MENU\n");
         printf("\t (6) QUIT\n");
         printf("Enter your choice ? "); 

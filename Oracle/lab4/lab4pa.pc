@@ -16,11 +16,11 @@
  
 void sql_error();
 void do_connect();
-void lispart();
-void respon();
-void modstat();
-void deletion();
-void explosion();
+
+void low_part();
+void cre_po();
+void pot_supp();
+
 int print_menu();
 
 int main()
@@ -37,15 +37,13 @@ int main()
         {
          switch (print_menu())
          {
-          case 1: lispart();
+          case 1: low_part();
                   break;
-        //   case 2: respon();
-          case 2: explosion();
+          case 2: cre_po();
                   break;
-          case 3: modstat();
+          case 3: pot_supp();
                   break;
-          case 4: deletion();
-                  break;
+
           case 5: print_menu();
                   break;
           case 6: puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
@@ -89,7 +87,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="userid/password";
+   char *uid="ora00079/QCe6eu";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -100,18 +98,18 @@ void do_connect()
 *  ******************************************************************************************
 */
 
-void lispart()
+void low_part()
 {
 char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
-int     my_partid, none=1;
+int     my_emp_num,my_partid, none=1;
         for (;;)                /* infinite loop until user enter a 0 */
         {
                 printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
+                scanf("%d",&my_emp_num);         
 
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
+                printf("Part Number : %d\n",my_emp_num);
+                if (my_emp_num == 0) 
                 { 
                         EXEC SQL COMMIT; 
                         printf("End of this transaction\n"); 
@@ -122,8 +120,11 @@ int     my_partid, none=1;
 
         EXEC SQL EXECUTE
         BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
+                SELECT part_id ,part_name INTO :my_partid,:description
+                FROM part,responsible
+                WHERE emp_number = :my_emp_num 
+                AND part_number = part_id 
+                AND stock_qty +order_qty <= min_qty;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
@@ -152,7 +153,7 @@ int     my_partid, none=1;
 *  ******************************************************************************************
 */
 
-void explosion()
+void cre_po()
 {
 char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
@@ -205,7 +206,7 @@ int     my_partid, none=1;
 *  *************************************************************
 */
 
-void respon()
+void pot_supp()
 {
 int     my_emp_num, my_partid;
 char    description[16];        /* 1 more octet for the binary 0 */
@@ -280,40 +281,7 @@ int     num, status;
         return;
 }
 
-/* *******************************************************************************
-*       Function to delete a part from the table part2 ; the stocked procedure
-*       must be created before this block
-*  *******************************************************************************
-*/
 
-void deletion()
-{
-int     num, stat=1;    
-        for (;;)
-        {
-        printf("\nEnter the number of the part in part2 to be deleted (0 to quit)? ");
-        scanf("%d",&num);
-        if (num == 0) 
-        {
-                printf("End of this transaction\n"); 
-                return; 
-        }
-        EXEC SQL EXECUTE
-        BEGIN
-                del_part2(:num);
-                if SQL%NOTFOUND then :stat:=0;
-                end if;
-                commit;
-        END;
-        END-EXEC;
-        if (stat==0)  
-        {
-         printf("part not found \n");   
-        }
-        else    printf("Part deleted\n");
-        }
-        return;
-}
 
 /* ************************************************************
 *       Function print the menu and choose the transaction
@@ -325,10 +293,9 @@ int print_menu()
    int choice;                          /* id of menu */
         printf("\n\t Choose a transaction by entering a number \n");
         printf("\t *****************************************\n");
-        printf("\t (1) LISPART\n");
-        printf("\t (2) explosion\n");
-        printf("\t (3) MODSTAT\n");
-        printf("\t (4) DELETION\n");
+        printf("\t (1) low_part\n");
+        printf("\t (2) cre_po\n");
+        printf("\t (3) pot_supp\n");
         printf("\t (5) DISPLAY MENU\n");
         printf("\t (6) QUIT\n");
         printf("Enter your choice ? "); 

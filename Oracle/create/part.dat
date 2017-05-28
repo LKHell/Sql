@@ -1,7 +1,7 @@
 //part_id, part_name, stock_qty, order_qty, min_qty, unit, unit_price) will be skip=1
-2001,partA,1,2,3,$,1000,
-2002,partB,,,,$,500,
-2003,partC,,,,$,100,
-2004,partD,,,2,$,300,
-2005,partE,2,3,3,$,250,
-2006,partF,,,2,$,300,
+2001,partA,1,,,,1000,
+2002,partB,10,,,,500,
+2003,partC,115,,,,100,
+2004,partD,123,,,,300,
+2005,partE,2,,,,250,
+2006,partF,23,,,,95,
