@@ -1,6 +1,8 @@
 /*
 *       Author:         Paul Girard Ph.D., UQAC
-*       Date:           March 2016 
+*       Modified by 	LiuTao 20145977 
+*		UserType: 		PDS
+*       Date:           May 2017 
 *       Objective:      Program using Pro*C/C++ and gcc to show how to use 
 *                       different type of PL/SQL blocks & SQL in a C PGM
 *
@@ -18,7 +20,7 @@ void sql_error();
 void do_connect();
 
 void modresp();
-void quant();
+void quant_();
 
 int print_menu();
 
@@ -38,7 +40,7 @@ int main()
          {
           case 1: modresp();
                   break;
-          case 2: quant();
+          case 2: quant_();
                   break;
           
           case 5: print_menu();
@@ -84,7 +86,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="userid/password";
+   char *uid="ora00057/s48d7M";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -98,12 +100,11 @@ void do_connect()
 
 void modresp()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
+
+int     my_partid,emp_num1,emp_num2, none=1;
         for (;;)                /* infinite loop until user enter a 0 */
         {
-                printf("Number of the part (0 to quit )? ");
+                printf("Number of the part (0 to quit ,2001-2006)? ");
                 scanf("%d",&my_partid);         
 
                 printf("Part Number : %d\n",my_partid);
@@ -113,13 +114,12 @@ int     my_partid, none=1;
                         printf("End of this transaction\n"); 
                         break; 
                 } 
-
 /*-------------- Beginning the PL/SQL block -----------------*/ 
 
         EXEC SQL EXECUTE
         BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
+                SELECT emp_number INTO : emp_num1     
+                FROM ora00079.responsible WHERE part_number = :my_partid;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
@@ -135,10 +135,55 @@ int     my_partid, none=1;
            }
         else
             {
-                printf("Name of the part\n"); 
+                printf("Part_id    Emp_id\n"); 
                 printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
+                printf("%d\t\t\t%d\n",my_partid,emp_num1); 
+                
+                
+                for(;;)
+				{
+					printf("Set the emp_num(0 to quit,1001-1007) ");
+					scanf("%d",&emp_num2); 
+					if (emp_num2>1000&&emp_num2<1008||emp_num2==0) break;
+                }
+                
+                if (emp_num2 == 0) 
+                { 
+                        EXEC SQL COMMIT; 
+                        printf("End of this transaction\n"); 
+                        break; 
+                }
+				else
+                {
+					printf("Emp Number : %d\n",emp_num2);
+                }/*-------------- Beginning the PL/SQL block -----------------*/ 
+
+                EXEC SQL EXECUTE
+                BEGIN 
+                        UPDATE ora00079.responsible 
+                        SET emp_number=:emp_num2 
+                        WHERE part_number=:my_partid;
+                        EXCEPTION
+                                WHEN NO_DATA_FOUND THEN 
+                                :none:=0;
+                END;
+                END-EXEC;
+				EXEC SQL COMMIT;
+                /*-------------- end of PL/SQL block -----------------*/ 
+                if (none==0)  
+                {
+                        printf("Record not found \n");
+                        none=1;
+                }
+                else
+                {
+                        printf("Part_id\t\t\tEmp_id\n"); 
+                        printf("---------------\n"); 
+                        printf("%d\t\t\t%d\n",my_partid,emp_num2);
+                }
+        }
+        
+
         EXEC SQL COMMIT;
         }                               /* end of infinite loop */
         return; 
@@ -150,52 +195,54 @@ int     my_partid, none=1;
 *  ******************************************************************************************
 */
 
-void quant()
+void quant_()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
-        {
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
+    int my_emp_num,get_total,get_po_number,sum;
+    for (;;)                /* infinite loop until user enter a 0 */
+    {
+		sum=0;
+		printf("Number of the pa_agent (0 to quit )? ");
+		scanf("%d",&my_emp_num);         
+		printf("Part Number : %d\n",my_emp_num);
+		if (my_emp_num == 0) 
+		{ 
+			EXEC SQL COMMIT; 
+			printf("End of this transaction\n"); 
+			break; 
+		} 
 
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
-                } 
+    /*-------------- Beginning the PL/SQL block -----------------*/ 
 
-/*-------------- Beginning the PL/SQL block -----------------*/ 
+    EXEC SQL DECLARE c1 CURSOR FOR 
 
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
+        /* SELECT sum(total) FROM purchase_order,pa_task WHERE emp_num = 1001 AND pa_task.po_number=purchase_order.po_number; */
+            // SELECT pa_task.po_number,total 
+            // FROM ora00079.purchase_order,ora00079.pa_task 
+            // WHERE emp_num = :my_emp_num 
+            // AND pa_task.po_number=purchase_order.po_number;
+			SELECT po_number,total 
+            FROM ora00079.purchase_pds 
+            WHERE emp_num = :my_emp_num;
+           
+	EXEC SQL OPEN C1;
+	EXEC SQL WHENEVER NOT FOUND do break;
+	printf("PO_NUM\t\t\tTOTAL\n"); 
+    printf("---------------\n"); 
+    /*-------------- end of PL/SQL block -----------------*/ 
 
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
-        EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
-        return; 
+	for (;;)
+	{
+			EXEC SQL fetch c1 into :get_po_number, :get_total;
+			 printf("%d\t\t\t%d\n",get_po_number,get_total);
+			 sum=sum+ get_total;
+	}
+	printf("sum of total : %d\n",sum); 
+	printf("End of this transaction\n");
+    
+	exec sql CLOSE c1;
+    EXEC SQL COMMIT;
+    }                               /* end of infinite loop */
+    return; 
 }
 
 /* ************************************************************
@@ -210,8 +257,6 @@ int print_menu()
         printf("\t *****************************************\n");
         printf("\t (1) modresp\n");
         printf("\t (2) quant\n");
-       
-      
         printf("\t (5) DISPLAY MENU\n");
         printf("\t (6) QUIT\n");
         printf("Enter your choice ? "); 

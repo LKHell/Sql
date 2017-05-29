@@ -31,7 +31,7 @@ create table part
         unit_price      number(7,2)     default 0);
         
 create view part_sks as
-        select stock_qty, unit_price
+        select part_id,unit_price, stock_qty
         from part;
 	
 create view part_pds as
@@ -74,8 +74,10 @@ create table purchase_order
         total           number(5,2)     default 0,
         status          char(15)        default 'not_completed');
         
-create view purchase_pds as
-        select po_date,total from purchase_order;
+create view purchase_pds as 
+select pa_task.po_number,po_date,total,emp_num 
+from purchase_order,pa_task 
+where pa_task.po_number=purchase_order.po_number;
         
 create table contractual
         (supplier_id    number(4)       not null references supplier(supplier_id),

@@ -84,7 +84,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="userid/password";
+   char *uid="ora00059/Zxz9sQ";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -97,49 +97,23 @@ void do_connect()
 
 void invent_()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
+        int get_part_id,get_stock;
+
+        EXEC SQL DECLARE c1 CURSOR FOR
+                SELECT part_id, stock_qty
+                FROM ora00079.part_sks;
+        EXEC SQL OPEN c1;
+        EXEC SQL WHENEVER NOT FOUND do break;
+        
+        printf("\tPart ID\t\tSTOCK_QTY\n");
+        for(;;)
         {
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
-
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
-                } 
-
-/*-------------- Beginning the PL/SQL block -----------------*/ 
-
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
+                EXEC SQL FETCH c1 INTO :get_part_id,:get_stock;
+                printf("\t%d\t\t%d\n",get_part_id,get_stock);
+        } 
+        printf("END");
+        EXEC SQL CLOSE c1;
         EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
         return; 
 }
 
@@ -151,49 +125,24 @@ int     my_partid, none=1;
 
 void value_()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
-                                at the end of a C character type */
-int     my_partid, none=1;
-        for (;;)                /* infinite loop until user enter a 0 */
+    int get_part_id,get_value;
+
+        EXEC SQL DECLARE c2 CURSOR FOR
+                SELECT part_id, stock_qty*unit_price
+                FROM ora00079.part_sks;
+        EXEC SQL OPEN c2;
+        EXEC SQL WHENEVER NOT FOUND do break;
+        
+        printf("\tPart ID\t\tSTOCK_QTY\n");
+        for(;;)
         {
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
-
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction\n"); 
-                        break; 
-                } 
-
-/*-------------- Beginning the PL/SQL block -----------------*/ 
-
-        EXEC SQL EXECUTE
-        BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
-                FROM part WHERE part_id = :my_partid;
-                EXCEPTION
-                        WHEN NO_DATA_FOUND THEN 
-                        :none:=0;
-        END;
-        END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
-        if (none==0)  
-           {
-                printf("Record not found \n");
-                none=1;
-           }
-        else
-            {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
-            }
+                EXEC SQL FETCH c2 INTO :get_part_id,:get_value;
+                printf("\t%d\t\t%d\n",get_part_id,get_value);
+        } 
+        printf("END");
+        EXEC SQL CLOSE c2;
         EXEC SQL COMMIT;
-        }                               /* end of infinite loop */
+          
         return; 
 }
 
