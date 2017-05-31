@@ -268,8 +268,10 @@ void part_out()
 */
 void pord_in()
 {       
-        int get_po_number,get_product_id,get_gty_rec,get_gty_order,none=1;
-        char set_status[16]="Completed";
+        int     get_po_number,get_product_id,
+                get_qty_rec,set_qty,get_qty_order,
+                none=1;
+        char    set_status[16]="Completed";
         
         for(;;)
         {
@@ -293,10 +295,10 @@ void pord_in()
                         break; 
                 }
                 
-                /*--------------get_gty_order-----------------*/
+                /*--------------get_qty_order-----------------*/
                 EXEC SQL EXECUTE
                 BEGIN 
-                        SELECT  qty_order INTO : get_gty_order
+                        SELECT  qty_order INTO : get_qty_order
                         FROM ora00079.detail     
                         WHERE po_number = :get_po_number
                         AND product_id = :get_product_id;
@@ -306,25 +308,45 @@ void pord_in()
                 END;
                 END-EXEC;
                 /*----------------if rec>order-set rec=order--------------------------*/
-                printf("Input get_gty_rec");
-                scanf("%d",&get_gty_rec);
-                if (get_gty_rec == 0) 
+                printf("Input get_qty_rec");
+                scanf("%d",&get_qty_rec);
+               
+                if (get_qty_rec == 0) 
                 { 
                         EXEC SQL COMMIT; 
                         printf("End of this transaction\n"); 
                         break; 
-                }else if(get_gty_rec>get_gty_order)
-                {
-
                 }
+                else if(get_qty_rec>get_qty_order)
+                {
+                        set_qty=get_qty_order;
+                        printf("set rec is order, %d will be return to supplier\n",get_qty_rec-get_qty_order); 
+                        
+                }
+                else  set_qty=get_qty_rec;
                 
-                /*---------------------------------------------------------*/
+                /*-------------------product_id != part_id--------------------------------*/
                 EXEC SQL EXECUTE
                 BEGIN 
-                        UPDATE ora00079.detail     
-                        SET qty_rec=:get_gty_rec
-                        WHERE po_number = :get_po_number
-                        AND product_id = :get_product_id;
+                        UPDATE  ora00079.detail     
+                        SET     qty_rec=:get_qty_rec
+                        WHERE   po_number = :get_po_number
+                        AND     product_id = :get_product_id;
+                        EXCEPTION
+                                WHEN NO_DATA_FOUND THEN 
+                                :none:=0;
+                        
+                        UPDATE  ora00079.purchase_order     
+                        SET     status=:set_status
+                        WHERE   po_number = :get_po_number;
+                        EXCEPTION
+                                WHEN NO_DATA_FOUND THEN 
+                                :none:=0;
+                        
+                        UPDATE  ora00079.part     
+                        SET     stock_qty=stock_qty+:set_qty,
+                                order_qty=order_qty-set_qty
+                        WHERE   part_id = :get_product_id;
                         EXCEPTION
                                 WHEN NO_DATA_FOUND THEN 
                                 :none:=0;
