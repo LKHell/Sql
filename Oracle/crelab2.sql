@@ -4,6 +4,7 @@
 drop view part_sks;
 drop view part_pds;
 drop view purchase_pds;
+drop view purchase_sk;
 
 drop table detail;
 drop table pa_task;
@@ -74,11 +75,9 @@ create table purchase_order
         total           number(5,2)     default 0,
         status          char(15)        default 'not_completed');
         
-create view purchase_pds as 
-select pa_task.po_number,po_date,total,emp_num 
-from purchase_order,pa_task 
-where pa_task.po_number=purchase_order.po_number;
-        
+
+
+
 create table contractual
         (supplier_id    number(4)       not null references supplier(supplier_id),
         po_number       number(4)       primary key references purchase_order(po_number));
@@ -92,5 +91,19 @@ create table detail
         product_id      number(4)	not null,
         qty_order       number(4)       not null,
         qty_rec         number(4)       not null);
+
+create view purchase_pds as 
+select pa_task.po_number,po_date,total,emp_num 
+from purchase_order,pa_task 
+where pa_task.po_number=purchase_order.po_number;
+
+create view purchase_sk as
+select purchase_order.po_number,status,po_date,pa_name,supplier.supplier_id,supplier_name,addr,contact,product.product_id,product_name,product.unit,product.unit_price,qty_order,qty_rec
+from purchase_order,pa_agent,pa_task,supplier,product,detail
+where purchase_order.po_number=pa_task.po_number
+and   pa_task.emp_num=pa_agent.emp_num
+and   product.supplier_id=supplier.supplier_id
+and   product.product_id=detail.product_id
+and   purchase_order.po_number=detail.po_number;
 	
 create index detail_idx on detail(po_number, product_id);

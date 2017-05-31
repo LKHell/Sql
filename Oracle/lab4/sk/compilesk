@@ -1,1 +1,1 @@
-gcc lab4sk.c -o lab4pds -include /$ORACLE_HOME/precomp/public/sqlca.h -lclntsh -B$ORACLE_HOME/lib/ -B$ORACLE_HOME/lib
+gcc lab4sk.c -o lab4sk -include /$ORACLE_HOME/precomp/public/sqlca.h -lclntsh -B$ORACLE_HOME/lib/ -B$ORACLE_HOME/lib

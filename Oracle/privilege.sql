@@ -4,5 +4,6 @@ GRANT SELECT ON purchase_pds TO ora00057;
 -- sks
 GRANT SELECT ON part_sks TO ora00059;
 --sk
-
+GRANT UPDATE,SELECT ON part  TO ora00137;
+GRANT SELECT ON purchase_sk TO ora00137;
 --pa

@@ -5,6 +5,7 @@ REVOKE SELECT ON purchase_pds FROM ora00057;
 REVOKE select ON part_sks FROM ora00059;
 --sk
 
+REVOKE UPDATE,SELECT ON purchase_sk FROM ora00137;
 
 --pa
 
