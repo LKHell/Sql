@@ -31,13 +31,7 @@ create table part
         unit            char(10)        default 'unit',
         unit_price      number(7,2)     default 0);
         
-create view part_sks as
-        select part_id,unit_price, stock_qty
-        from part;
-	
-create view part_pds as
-        select part_id, part_name
-        from part;
+
         
 create table responsible
         (emp_number     number(4)       not null references pa_agent(emp_num),
@@ -75,9 +69,6 @@ create table purchase_order
         total           number(5,2)     default 0,
         status          char(15)        default 'not_completed');
         
-
-
-
 create table contractual
         (supplier_id    number(4)       not null references supplier(supplier_id),
         po_number       number(4)       primary key references purchase_order(po_number));
@@ -92,18 +83,45 @@ create table detail
         qty_order       number(4)       not null,
         qty_rec         number(4)       not null);
 
-create view purchase_pds as 
-select pa_task.po_number,po_date,total,emp_num 
-from purchase_order,pa_task 
-where pa_task.po_number=purchase_order.po_number;
-
-create view purchase_sk as
-select purchase_order.po_number,status,po_date,pa_name,supplier.supplier_id,supplier_name,addr,contact,product.product_id,product_name,product.unit,product.unit_price,qty_order,qty_rec
-from purchase_order,pa_agent,pa_task,supplier,product,detail
-where purchase_order.po_number=pa_task.po_number
-and   pa_task.emp_num=pa_agent.emp_num
-and   product.supplier_id=supplier.supplier_id
-and   product.product_id=detail.product_id
-and   purchase_order.po_number=detail.po_number;
+create view part_sks as
+        select part_id,unit_price, stock_qty
+        from part;
 	
+create view part_pds as
+        select part_id, part_name
+        from part;
+
+CREATE VIEW purchase_pds AS 
+SELECT pa_task.po_number,po_date,total,emp_num 
+FROM purchase_order,pa_task 
+WHERE pa_task.po_number=purchase_order.po_number;
+
+CREATE VIEW purchase_sk AS
+SELECT purchase_order.po_number,status,po_date,pa_name,supplier.supplier_id,supplier_name,addr,contact,product.product_id,product_name,product.unit,product.unit_price,qty_order,qty_rec
+FROM purchase_order,pa_agent,pa_task,supplier,product,detail
+WHERE purchase_order.po_number=pa_task.po_number
+AND   pa_task.emp_num=pa_agent.emp_num
+AND   product.supplier_id=supplier.supplier_id
+AND   product.product_id=detail.product_id
+AND   purchase_order.po_number=detail.po_number;
+
+
+CREATE VIEW part_sk AS
+SELECT po_number,product_id,part.part_id,stock_qty,order_qty
+FROM pot_supplier,part,contractual
+WHERE   part.part_id=pot_supplier.part_id
+AND  contractual.supplier_id=pot_supplier.supplier_id;
+
+CREATE VIEW part_pa AS
+SELECT  part_id,part_name,emp_number,stock_qty,order_qty,min_qty
+FROM    part,responsible
+WHERE   part_id=part_number;
+
+CREATE VIEW pot_supplier_pa AS
+SELECT  part_id,pr.product_id,pr.supplier_id,unit,unit_price
+FROM product pr,pot_supplier po
+WHERE pr.product_id=po.product_id
+AND pr.supplier_id=po.supplier_id;
+
+
 create index detail_idx on detail(po_number, product_id);

@@ -105,7 +105,7 @@ void do_connect()
 void list_po()
 {
 int     set_po_number,  none=1;
-int     po_number_i,    supplier_id_i,  product_id_i,
+int     supplier_id_i,  product_id_i,
         qty_order_i,    qty_rec_i,      unit_i;
 
 char    status_c[16],   po_date_c[9],   pa_name_c[16],
@@ -117,10 +117,10 @@ float   unit_price_f=0.0f;
 
         for (;;)                /* infinite loop until user enter a 0 */
         {
-                printf("Number of the purchase (0 to quit )? ");
+                printf("Number of the purchase_order (0 to quit )? ");
                 scanf("%d",&set_po_number);         
 
-                printf("Part Number : %d\n",set_po_number);
+                printf("Purchase_order Number : %d\n",set_po_number);
                 if (set_po_number == 0) 
                 { 
                         EXEC SQL COMMIT; 
@@ -135,39 +135,62 @@ and   pa_task.emp_num=pa_agent.emp_num
 and   product.supplier_id=supplier.supplier_id
 and   product.product_id=detail.product_id
 and   purchase_order.po_number=detail.po_number;
+
+SELECT po_number,status,po_date,pa_name,supplier_id,supplier_name,addr,contact,product_id,product_name,unit,unit_price,qty_order,qty_rec 
+INTO :po_number_i,:status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_c,:addr_c,:contact_c,:product_id_i,:product_name_c,:unit_i,:unit_price_f,:qty_order_i,:qty_rec_i
+
+
 */
 /*-------------- Beginning the PL/SQL block -----------------*/ 
 
         EXEC SQL EXECUTE
         BEGIN 
-                SELECT po_number,status,po_date,pa_name,supplier_id,supplier_name,addr,contact,product_id,product_name,unit,unit_price,qty_order,qty_rec 
-                INTO :po_number_i,:status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_c,:addr_c,:contact_c,:product_id_i,:product_name_c,:unit_i,:unit_price_f,:qty_order_i,:qty_rec_i     
+                SELECT  status,po_date,pa_name,supplier_id,supplier_name,addr,contact 
+                INTO :status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_c,:addr_c,:contact_c     
+                
                 FROM ora00079.purchase_sk 
-                WHERE po_number = :set_po_number;
+                WHERE po_number = :set_po_number
+                AND   rownum=1;
+                
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
         END;
         END-EXEC;
-
-/*-------------- end of PL/SQL block -----------------*/ 
-
         if (none==0)  
-           {
+        {
                 printf("Record not found \n");
                 none=1;
-           }
+        }
         else
-            {
-                printf("po_number\tstatus\t\tpo_date\t\tpa_name\n"); 
-                printf("%d\t\t%s\t%s\t%s\n\n",po_number_i,status_c,po_date_c,pa_name_c); 
-                
-                printf("supplier_id\tsupplier_name\taddr\t\t\tcontact\t\tproduct_id\n"); 
-                printf("%d\t\t%s\t%s\t%s %d\n\n",supplier_id_i,supplier_name_c,addr_c,contact_c,product_id_i); 
-                
-                printf("product_name\tunit\tunit_price\tqty_order\tqty_rec \n");
-                printf("%s\t%d\t%.2f\t\t%d\t\t%d\n",product_name_c,unit_i,unit_price_f,qty_order_i,qty_rec_i); 
-            }
+        {
+                printf("Po_number\tStatus\t\tPo_date\t\tPa_name\n"); 
+                printf("%d\t\t%s\t%s\t%s\n\n",set_po_number,status_c,po_date_c,pa_name_c); 
+                printf("Supplier_id\tSupplier_name\tContact\t\tADDR\n"); 
+                printf("%d\t\t%s\t%s\t%s\n\n",supplier_id_i,supplier_name_c,contact_c,addr_c); 
+        }
+/*-------------- end of PL/SQL block -----------------*/ 
+//------------------get product_info-----------------------------
+        EXEC SQL DECLARE c1 CURSOR for
+                SELECT  product_id,product_name,unit,unit_price,qty_order,qty_rec 
+                FROM    ora00079.purchase_sk
+                WHERE po_number = :set_po_number;
+
+        EXEC SQL open c1;
+
+        EXEC SQL WHENEVER NOT FOUND do break;
+        printf("Product_id\tProduct_name\tUnit\tUnit_price\tQty_order\tQty_rec \n\n");
+           
+        for (;;)
+        {
+                EXEC SQL fetch c1 into :product_id_i,:product_name_c,:unit_i,:unit_price_f,:qty_order_i,:qty_rec_i ;
+                printf("%d\t\t%s\t%d\t%.2f\t\t%d\t\t%d\n",product_id_i,product_name_c,unit_i,unit_price_f,qty_order_i,qty_rec_i); 
+        }
+        
+        printf("End of this transaction\n");
+        EXEC SQL close c1;
+//-----------------------------------------------------------------------
+
         EXEC SQL COMMIT;
         }                               /* end of infinite loop */
         return; 
@@ -308,7 +331,7 @@ void pord_in()
                 END;
                 END-EXEC;
                 /*----------------if rec>order-set rec=order--------------------------*/
-                printf("Input get_qty_rec");
+                printf("Qty_order is %d,Input get_qty_rec",get_qty_order);
                 scanf("%d",&get_qty_rec);
                
                 if (get_qty_rec == 0) 
@@ -332,21 +355,18 @@ void pord_in()
                         SET     qty_rec=:get_qty_rec
                         WHERE   po_number = :get_po_number
                         AND     product_id = :get_product_id;
-                        EXCEPTION
-                                WHEN NO_DATA_FOUND THEN 
-                                :none:=0;
+                        
                         
                         UPDATE  ora00079.purchase_order     
                         SET     status=:set_status
                         WHERE   po_number = :get_po_number;
-                        EXCEPTION
-                                WHEN NO_DATA_FOUND THEN 
-                                :none:=0;
+                       
                         
-                        UPDATE  ora00079.part     
+                        UPDATE  ora00079.part_sk   
                         SET     stock_qty=stock_qty+:set_qty,
-                                order_qty=order_qty-set_qty
-                        WHERE   part_id = :get_product_id;
+                                order_qty=order_qty-:set_qty
+                        WHERE   product_id = :get_product_id
+                        AND     po_number = :get_po_number;
                         EXCEPTION
                                 WHEN NO_DATA_FOUND THEN 
                                 :none:=0;
