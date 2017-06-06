@@ -1,0 +1,12 @@
+product_id,supplier_id,product_name,unit,unit_price
+7101,4001,proAA,1,25,
+7102,4001,proAB,1,48,
+7103,4001,proAC,3,62,
+7104,4001,proAD,2,34,
+7105,4001,proAE,1,77,
+7106,4001,proAF,1,77,
+
+7201,4002,tianA,2,92,
+7202,4002,tianB,2,92,
+7203,4002,tianC,2,92,
+7204,4002,tianD,2,92,

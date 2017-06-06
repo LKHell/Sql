@@ -19,5 +19,6 @@ GRANT SELECT,INSERT ON pa_task TO ora00123;
 GRANT SELECT,INSERT ON purchase_order TO ora00123;
 GRANT SELECT ON part_pa TO ora00123;
 GRANT SELECT ON pot_supplier_pa TO ora00123;
+GRANT SELECT ON part TO ora00123;
 
 -- Tech is DBA

@@ -1,0 +1,11 @@
+dos2unix pa_agent.dat
+dos2unix part.dat
+dos2unix component.dat
+dos2unix supplier.dat
+dos2unix product.dat
+dos2unix responsible.dat
+dos2unix pot_supplier.dat
+dos2unix purchase_order.dat
+dos2unix contractual.dat
+dos2unix pa_task.dat
+dos2unix detail.dat
