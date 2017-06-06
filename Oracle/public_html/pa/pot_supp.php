@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00057", "s48d7M", $bd);
+$connection = OCI_connect("ora00123", "RRfsJu", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -37,7 +37,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 
-$curs1 = OCIparse($connection, "SELECT part_id, part_name FROM part where part_id like '$partid%'");
+$curs1 = OCIparse($connection, "SELECT  supplier_id,product_id,unit,unit_price FROM ora00079.pot_supplier_pa WHERE part_id = '$part_id'");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);
@@ -50,16 +50,21 @@ if(OCIError($curs1))
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCI_Define_By_Name($curs1,"PART_ID",$part_id);
-OCI_Define_By_Name($curs1,"PART_NAME",$part_name);
+OCI_Define_By_Name($curs1,"SUPPLIER_ID",$supplier_id);
+OCI_Define_By_Name($curs1,"PRODUCT_ID",$product_id);
+OCI_Define_By_Name($curs1,"UNIT",$unit);
+OCI_Define_By_Name($curs1,"UNIT_PRICE",$unit_price);
+
 
 /*	4. Execution of the SQL request with an immediate commit to free locks */
 OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
-$chain .= "<b>PART ID  PART NAME</b><br>\n";
+$chain .= "<b>supplier_id   product_id  unit  unit_price</b><br>\n";
 
 /*	5. Read each row from the result of the Sql request */	
 while (OCIfetch($curs1))
-	$chain .= "$part_id  &nbsp &nbsp &nbsp &nbsp &nbsp $part_name<br>\n";
+	$chain .= "	$supplier_id  &nbsp &nbsp &nbsp &nbsp &nbsp 
+				$product_id &nbsp &nbsp &nbsp &nbsp &nbsp
+				$unit	 &nbsp &nbsp &nbsp &nbsp &nbsp  $unit_price <br>\n";
 
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";

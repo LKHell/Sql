@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00079", "QCe6eu", $bd);
+$connection = OCI_connect("ora00059", "Zxz9sQ", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -37,7 +37,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 // $curs1 = OCIparse($connection, "SELECT emp_number, part_number FROM responsible where part_number like '$part_number%'");
-$curs1 = OCIparse($connection, "UPDATE responsible SET emp_number= '$emp_number' WHERE part_number='$part_number'");
+$curs1 = OCIparse($connection, "UPDATE ora00079.responsible SET emp_number= '$emp_number' WHERE part_number='$part_number'");
 // $curs1 = OCIparse($connection, "UPDATE responsible SET emp_number= 1001 WHERE part_number=2001");
 if(OCIError($curs1))
 	{
@@ -51,22 +51,36 @@ if(OCIError($curs1))
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCI_Define_By_Name($curs1,"emp_number",$emp_number);
-OCI_Define_By_Name($curs1,"part_number",$part_number);
+OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
+OCIFreeStatement($curs1);
+
+$curs2 = OCIparse($connection, "SELECT part_number,emp_number FROM ora00079.responsible  WHERE part_number='$part_number'");
+
+if(OCIError($curs2))
+	{
+	OCIlogoff($connection);
+	$url = "err_base.html";
+	header("Location: $url");
+	exit;
+	};
+
+OCI_Define_By_Name($curs2,"PART_NUMBER",$part_number2);
+OCI_Define_By_Name($curs2,"EMP_NUMBER",$emp_number2);
+
 
 /*	4. Execution of the SQL request with an immediate commit to free locks */
-OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
-$chain .= "<b>PART ID       PART NAME</b><br>\n";
+OCIExecute($curs2, OCI_COMMIT_ON_SUCCESS);
+$chain .= "<b>EMP_NUM   &nbsp &nbsp &nbsp   PART ID </b><br>\n";
 
 /*	5. Read each row from the result of the Sql request */	
-while (OCIfetch($curs1))
-	$chain .= "$emp_number  &nbsp &nbsp &nbsp &nbsp &nbsp $part_number<br>\n";
+while (OCIfetch($curs2))
+	$chain .= "$emp_number2  &nbsp &nbsp &nbsp &nbsp &nbsp $part_number2<br>\n";
 
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";
 print "<b>Version of this server :</b> " . OCIServerVersion($connection);
 /*	7. Free all ressources used by this command and quit */
-OCIFreeStatement($curs1);
+OCIFreeStatement($curs2);
 OCIlogoff($connection);
 
 /*	8. Transmission of the html page ==> Apache ==> client */

@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00057", "s48d7M", $bd);
+$connection = OCI_connect("ora00137", "wuUmc3", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -37,7 +37,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 
-$curs1 = OCIparse($connection, "SELECT part_id, part_name FROM part where part_id like '$partid%'");
+$curs1 = OCIparse($connection, "SELECT  status,po_date,pa_name,supplier_id,supplier_name,addr,contact FROM ora00079.purchase_sk WHERE po_number = '$po_number' AND rownum=1");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);
@@ -45,26 +45,44 @@ if(OCIError($curs1))
 	header("Location: $url");
 	exit;
 	};
-
+$curs2 = OCIparse($connection, "SELECT  product_id,product_name,unit,unit_price,qty_order,qty_rec FROM  ora00079.purchase_sk WHERE po_number = '$po_number'");
 /*  	3. Assign Oracle table columns names to PHP variables
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCI_Define_By_Name($curs1,"PART_ID",$part_id);
-OCI_Define_By_Name($curs1,"PART_NAME",$part_name);
+
+OCI_Define_By_Name($curs1,"STATUS",$status);
+OCI_Define_By_Name($curs1,"PO_DATE",$po_date);
+OCI_Define_By_Name($curs1,"PA_NAME",$pa_name);
+OCI_Define_By_Name($curs1,"SUPPLIER_ID",$supplier_id);
+OCI_Define_By_Name($curs1,"SUPPLIER_NAME",$supplier_name);
+OCI_Define_By_Name($curs1,"ADDR",$addr);
+OCI_Define_By_Name($curs1,"CONTACT",$contact);
+
+OCI_Define_By_Name($curs2,"PRODUCT_ID",$product_id);
+OCI_Define_By_Name($curs2,"PRODUCT_NAME",$product_name);
+OCI_Define_By_Name($curs2,"UNIT",$unit);
+OCI_Define_By_Name($curs2,"UNIT_PRICE",$unit_price);
+OCI_Define_By_Name($curs2,"QTY_ORDER",$qty_order);
+OCI_Define_By_Name($curs2,"QTY_REC",$qty_rec);
+
 
 /*	4. Execution of the SQL request with an immediate commit to free locks */
-OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
-$chain .= "<b>PART ID  PART NAME</b><br>\n";
 
+OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
+OCIExecute($curs2, OCI_COMMIT_ON_SUCCESS);
+OCIfetch($curs1);
+$chain .= "<b>po_number: $po_number</b><br>\n";
+$chain .= "status: $status,po_date: $po_date,pa_name: $pa_name,\n supplier_id: $supplier_id,supplier_name: $supplier_name,\n addr: $addr,contact $contact<br>\n";
 /*	5. Read each row from the result of the Sql request */	
-while (OCIfetch($curs1))
-	$chain .= "$part_id  &nbsp &nbsp &nbsp &nbsp &nbsp $part_name<br>\n";
+while (OCIfetch($curs2))
+	$chain .= "$product_id  &nbsp $product_name &nbsp $unit &nbsp $unit_price&nbsp $qty_order &nbsp $qty_rec<br>\n";
 
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";
 print "<b>Version of this server :</b> " . OCIServerVersion($connection);
 /*	7. Free all ressources used by this command and quit */
+OCIFreeStatement($curs2);
 OCIFreeStatement($curs1);
 OCIlogoff($connection);
 
