@@ -5,6 +5,9 @@ drop view part_sks;
 drop view part_pds;
 drop view purchase_pds;
 drop view purchase_sk;
+drop view part_sk;
+drop view part_pa;
+drop view pot_supplier_pa;
 
 drop table detail;
 drop table pa_task;
