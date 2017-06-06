@@ -4,7 +4,7 @@
 *	Editor: Li Kunhao 
 *	Date:	May 2017
 *	Course:	8trd157-TUT
-*	Objective: Display all components  (part_id1, name) of a given part (part_id) 
+*	Objective: Cancel a component (part_id1) of a given part (part_id2) 
 ***************************************************************************	
 *	1. Creation of a connection identifier in the user schema to the Oracle
 *	   database. OCIError returns false if there is a connection error.
@@ -36,9 +36,22 @@ $chain .= "</font><br><br>\n";
 $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center>\n";
 
 /*	2. Analysis of the SQL request 	*/
-
+/*
+SELECT part_id 
+FROM ora00079.part  WHERE part_id=:my_partid*/
+$cursD = OCIparse($connection, 
+" DELETE FROM ora00079.component WHERE partid='$partid' AND componentid='$componentid'");
+if(OCIError($cursD))
+	{
+	OCIlogoff($connection);
+	$url = "err_base.html";
+	header("Location: $url");
+	exit;
+	};
+OCIExecute($cursD, OCI_COMMIT_ON_SUCCESS);
+OCIFreeStatement($cursD);
 $curs1 = OCIparse($connection, 
-"SELECT part_id, part_name FROM ora00079.part WHERE part_id in (select componentid from ora00079.component where partid like '$partid%')");
+"SELECT partid, componentid FROM ora00079.component WHERE partid='$partid' ");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);
@@ -51,8 +64,10 @@ if(OCIError($curs1))
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCI_Define_By_Name($curs1,"PART_ID",$partcid);
-OCI_Define_By_Name($curs1,"PART_NAME",$part_name);
+
+
+OCI_Define_By_Name($curs1,"PARTID",$new_partid);
+OCI_Define_By_Name($curs1,"COMPONENTID",$new_componentid);
 
 /*	4. Execution of the SQL request with an immediate commit to free locks */
 OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
@@ -60,7 +75,7 @@ $chain .= "<b>PART ID  PART NAME</b><br>\n";
 
 /*	5. Read each row from the result of the Sql request */	
 while (OCIfetch($curs1))
-	$chain .= "$partcid  &nbsp &nbsp &nbsp &nbsp &nbsp $part_name<br>\n";
+	$chain .= "$new_partid  &nbsp &nbsp &nbsp &nbsp &nbsp $new_componentid<br>\n";
 
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";

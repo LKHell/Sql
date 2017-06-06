@@ -1,10 +1,11 @@
 <?php
 /**************************************************************************
 *	Author: Paul Girard, Ph.D., UQAC
-*	Date:	March 2016
+*	Editor: Li Kunhao
+*	Date:	May 2017
 *	Course:	8trd157-TUT
-*	Objective: Show an example of SQL request activated by an html page 
-*		on the table part of a user schema defined in cndb
+*	Objective: 	Display part_id, name, unit,unit_ price, stock_qty,
+*   			order_qty, min_qty of a given part (part_id
 ***************************************************************************	
 *	1. Creation of a connection identifier in the user schema to the Oracle
 *	   database. OCIError returns false if there is a connection error.
