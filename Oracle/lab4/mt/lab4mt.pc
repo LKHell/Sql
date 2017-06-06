@@ -25,6 +25,8 @@ void do_connect();
 void lispart();
 void explosion();
 void implosion();
+void crecomp();
+void cancomp();
 
 int print_menu();
 
@@ -40,25 +42,26 @@ int main()
         
         while (1)       /* infinite loop */
         {
-         switch (print_menu())
-         {
-          case '1': lispart();
-                  break;
-       
-          case '2': explosion();
-                  break;
-          case '3': implosion();
-                  break;
-        
-          case '5': print_menu();
-                  break;
-          case '6': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
-                exit(0);
-          case '0': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
-                exit(0);
-          default: puts("\n =====> Enter a digit from the menu please ?");
-                   break;
-         }
+            switch (print_menu())
+            {
+                case '1': lispart();
+                        break;
+            
+                case '2': explosion();
+                        break;
+                case '3': implosion();
+                        break;
+                case '4': crecomp();
+                        break;
+                case '5': cancomp();
+                        break;
+                case '6': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
+                        exit(0);
+                case '0': puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
+                        exit(0);
+                default: puts("\n =====> Enter a digit from the menu please ?");
+                        break;
+            }
         }
         
         EXEC SQL COMMIT WORK RELEASE;           /* lib�re les verroux et d�connecte */
@@ -108,9 +111,10 @@ void do_connect()
 
 void lispart()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
+char    description[16],part_unit[11];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
-int     my_partid, none=1;
+int     my_partid,part_s_qty,part_o_qty,part_m_qty, none=1;
+float   part_unit_price=0.0f;
         for (;;)                /* infinite loop until user enter a 0 */
         {
                 printf("Number of the part (0 to quit )? ");
@@ -128,7 +132,8 @@ int     my_partid, none=1;
 
         EXEC SQL EXECUTE
         BEGIN 
-                SELECT part_name INTO :description      /* note: description needs 1 octet more */
+                SELECT part_name,unit,unit_price,stock_qty,order_qty,min_qty 
+                INTO :description,:part_unit,:part_unit_price,:part_s_qty,:part_o_qty,:part_m_qty      /* note: description needs 1 octet more */
                 FROM ora00079.part WHERE part_id = :my_partid;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
@@ -145,9 +150,9 @@ int     my_partid, none=1;
            }
         else
             {
-                printf("Name of the part\n"); 
-                printf("---------------\n"); 
-                printf("%s\n",description); 
+                printf("Part_ID\tPart_Name\tStock\tOrder\tMin\tUnit\tUnit_Price\n");
+                printf("---------------------------------------------------------------------\n");
+                printf("%d\t%s\t%4d\t%4d\t%4d\t%s %.2f\n",my_partid,description,part_s_qty,part_o_qty,part_m_qty,part_unit,part_unit_price); 
             }
         EXEC SQL COMMIT;
         }                               /* end of infinite loop */
@@ -291,7 +296,174 @@ char    description[16];        /* 1 more octet for the binary 0 */
         }
         return;
 }
+/* ******************************************************************************************
+*       Function to Creation of a component (part_id1) of a given part (part_id2)
+*  ******************************************************************************************
+*/
+void crecomp()
+{
+    int     my_partid_componet, my_partid,none=1,test;
+               /* infinite loop until user enter a 0 */
+        for(;;)
+        {
+            printf("Creation of a component \n");
+            printf("Number of the part (0 to quit ,2001-2006)? ");
+            scanf("%d",&my_partid);         
+            printf("Part Number : %d\n",my_partid);
+            if (my_partid == 0) 
+            { 
+                    EXEC SQL COMMIT; 
+                    printf("End of this transaction,get input 0\n");
+                    getchar(); 
+                    break;       
+            } 
+/*---------------------------------------------------------------------*/
+            EXEC SQL EXECUTE
+            BEGIN 
+                    SELECT part_id INTO :test 
+                    FROM ora00079.part 
+                    WHERE part_id=:my_partid
+                    AND rownum=1;
+                    EXCEPTION
+                            WHEN NO_DATA_FOUND THEN 
+                            :none:=0;
+            END;
+            END-EXEC;
+/*---------------------------------------------------------------------*/
+         if (none==0)  
+           {
+                printf("Record not found \n");
+                none=1;
+           }
+        else
+            {
+ /*---------------------------------------------------------------------*/
+                printf("Number of the component (0 to quit ,2001-2006)? ");
+                scanf("%d",&my_partid_componet);         
+                printf("Componet Number : %d\n",my_partid_componet);
+                if (my_partid_componet == 0) 
+                { 
+                    EXEC SQL COMMIT; 
+                    printf("End of this transaction,get input 0\n");
+                    getchar(); 
+                    break;       
+                }
+                EXEC SQL EXECUTE
+                BEGIN 
+                        INSERT INTO ora00079.component (partid,componentid)
+                        values (:my_partid,:my_partid_componet); 
+                        
+                        if SQL%NOTFOUND then :none:=0; 
+                        end if; 
+                END;
+                END-EXEC;
+                EXEC SQL COMMIT;
+                /*   if SQL%NOTFOUND then :none:=0; 
+                        end if;  doesn't work in this case   */
+                EXEC SQL EXECUTE
+                BEGIN 
+                SELECT partid INTO :test 
+                    FROM ora00079.component
+                    where  partid=:my_partid
+                    and componentid=:my_partid_componet;
+                    
+                    EXCEPTION
+                            WHEN NO_DATA_FOUND THEN 
+                            :none:=0;
+                END;
+                END-EXEC;
+                EXEC SQL COMMIT;
+                if (none==0)  
+                {
+                    none=1;
+                    printf("Record not found \n\n"); 
+                }
+                else  printf("Modification done\n\n"); 
+                printf("End of this transaction\n\n");     
+            }                      
+        EXEC SQL COMMIT;                /* free locks and keep the connection */
+        getchar();  //
+        }
+        return;
+}
 
+/* ******************************************************************************************
+*       Function to Cancel a component (part_id1) of a given part (part_id2) 
+*  ******************************************************************************************
+*/
+void cancomp()
+{
+    int     my_partid_componet, my_partid,none=1,test;
+               /* infinite loop until user enter a 0 */
+        for(;;)
+        {
+            printf("Cancel a component \n");
+            printf("Number of the part (0 to quit ,2001-2006)? ");
+            scanf("%d",&my_partid);         
+            printf("Part Number : %d\n",my_partid);
+            if (my_partid == 0) 
+            { 
+                    EXEC SQL COMMIT; 
+                    printf("End of this transaction,get input 0\n");
+                    getchar(); 
+                    break;       
+            } 
+/*-----------------------find_the_part_data-------------------------------*/
+            EXEC SQL EXECUTE
+            BEGIN 
+                    SELECT partid INTO :test 
+                    FROM ora00079.component 
+                    WHERE partid=:my_partid
+                    AND rownum=1;
+                    EXCEPTION
+                            WHEN NO_DATA_FOUND THEN 
+                            :none:=0;
+            END;
+            END-EXEC;
+/*---------------------------------------------------------------------*/
+         if (none==0)  
+           {
+                printf("Record not found \n");
+                none=1;
+           }
+        else
+            {
+ /*---------------------------------------------------------------------*/
+                printf("Number of the component (0 to quit ,2001-2006)? ");
+                scanf("%d",&my_partid_componet);         
+                printf("Componet Number : %d\n",my_partid_componet);
+                if (my_partid_componet == 0) 
+                { 
+                        EXEC SQL COMMIT; 
+                        printf("End of this transaction,get input 0\n");
+                        getchar(); 
+                        break;       
+                }
+                EXEC SQL EXECUTE
+                BEGIN 
+                        DELETE 
+                        FROM ora00079.component 
+                        WHERE partid=:my_partid
+                        AND componentid=:my_partid_componet; 
+                        
+                        if SQL%NOTFOUND then :none:=0; 
+                        end if; 
+                END;
+                END-EXEC;
+                EXEC SQL COMMIT;
+                if (none==0)  
+                {
+                    none=1;
+                    printf("Record not found \n\n"); 
+                }
+                else  printf("Modification done \n\n"); 
+                printf("End of this transaction\n\n");
+            }                      
+        EXEC SQL COMMIT;                /* free locks and keep the connection */
+        getchar();  //
+        }
+        return;
+}
 
 /* ************************************************************
 *       Function print the menu and choose the transaction
@@ -305,10 +477,10 @@ int print_menu()
         printf("\n\t Choose a transaction by entering a number \n");
         printf("\t *****************************************\n");
         printf("\t (1) LISPART\n");
-        printf("\t (2) explosion\n");
-        printf("\t (3) implosion\n");
-        
-        printf("\t (5) DISPLAY MENU\n");
+        printf("\t (2) EXPLOSION\n");
+        printf("\t (3) IMPLOSION\n");
+        printf("\t (4) Create a component\n");
+        printf("\t (5) Cancel a component\n");
         printf("\t (6/0) QUIT\n");
         printf("Enter your choice ? "); 
         scanf("%c",&choice);            /* read the choice */

@@ -9,8 +9,8 @@
 <center><h1><font color="#CCFFFF"></font>8trd157 - lab6<br><br>Explosion</h1>
 <br><br><br><br>
 <p><h4><center>Execution of the following command :
- <i>select part_id, part_name from part where part_id= like '$part_id%'</i></h4>
-<br><h3>Enter a part number (complete or partial  from 1001-1006)</h3>
+ <i>SELECT part_id, part_name FROM ora00079.part WHERE part_id in (select componentid from ora00079.component where partid like '$partid%')</i></h4>
+<br><h3>Enter a part number (complete or partial  from 2001-2006)</h3>
 
 <form action="explosion.php" method="post">
 <input type=text name="partid" size=4>

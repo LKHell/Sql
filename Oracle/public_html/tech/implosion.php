@@ -37,7 +37,9 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 
-$curs1 = OCIparse($connection, "SELECT part_id, part_name,unit,unit_price,stock_qty,order_qty,min_qty FROM part where part_id like '$partid%'");
+$curs1 = OCIparse($connection, 
+"SELECT part_id, part_name FROM ora00079.part WHERE part_id in (select partid from ora00079.component where componentid like '$partid%')");
+/*SELECT part_id, part_name FROM ora00079.part WHERE part_id in (select partid from ora00079.component where componentid=2002);*/
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);
@@ -50,35 +52,16 @@ if(OCIError($curs1))
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCI_Define_By_Name($curs1,"PART_ID",$part_id);
+OCI_Define_By_Name($curs1,"PART_ID",$partcid);
 OCI_Define_By_Name($curs1,"PART_NAME",$part_name);
-OCI_Define_By_Name($curs1,"UNIT",$unit);
-OCI_Define_By_Name($curs1,"UNIT_PRICE",$unit_price);
-OCI_Define_By_Name($curs1,"STOCK_QTY",$stock_qty);
-OCI_Define_By_Name($curs1,"ORDER_QTY",$order_qty);
-OCI_Define_By_Name($curs1,"MIN_QTY",$min_qty);
+
 /*	4. Execution of the SQL request with an immediate commit to free locks */
 OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
-$chain .= "PART ID  PART NAME UNIT UNIT_PRICE STOCK_QTY ORDER_QTY MIN_QTY</b><br>\n";
-/*
-<table border="1">
-<tr>
-<th>Heading</th>
-<th>Another Heading</th>
-</tr>
-<tr>
-<td>row 1, cell 1</td>
-<td>row 1, cell 2</td>
-</tr>
-<tr>
-<td>row 2, cell 1</td>
-<td>row 2, cell 2</td>
-</tr>
-</table>
-*/
+$chain .= "<b>PART ID  PART NAME</b><br>\n";
+
 /*	5. Read each row from the result of the Sql request */	
 while (OCIfetch($curs1))
-	$chain .= "$part_id  &nbsp &nbsp &nbsp &nbsp &nbsp $part_name&nbsp &nbsp &nbsp &nbsp &nbsp $unit &nbsp &nbsp &nbsp &nbsp &nbsp $unit_price &nbsp &nbsp &nbsp &nbsp &nbsp $stock_qty &nbsp &nbsp &nbsp &nbsp &nbsp $order_qty &nbsp &nbsp &nbsp &nbsp &nbsp $min_qty<br>\n";
+	$chain .= "$partcid  &nbsp &nbsp &nbsp &nbsp &nbsp $part_name<br>\n";
 
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";
