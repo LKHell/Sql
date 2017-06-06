@@ -83,6 +83,8 @@ create table detail
         qty_order       number(4)       not null,
         qty_rec         number(4)       not null);
 
+
+
 create view part_sks as
         select part_id,unit_price, stock_qty
         from part;

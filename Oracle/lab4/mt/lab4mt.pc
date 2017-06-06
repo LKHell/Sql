@@ -160,42 +160,64 @@ int     my_partid, none=1;
 
 void explosion()
 {
-int     my_partid_componet, my_partid;
+int     my_partid_componet, my_partid,none=1,test;
 char    description[16];        /* 1 more octet for the binary 0 */
                /* infinite loop until user enter a 0 */
-        for(;;){
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
-
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction,get input 0\n");
-                        getchar(); 
-                        break;       
-                } 
-                        
-        EXEC SQL DECLARE c1 cursor for
-                SELECT componentid, part_name
-                FROM ora00079.part,ora00079.component
-                WHERE componentid=part_id AND partid= :my_partid ;
-        
-        EXEC SQL open c1;
-
-        EXEC SQL WHENEVER NOT FOUND do break;
-        
-        printf("\tPart ID\tName of Part\t\n");
-            
-        for (;;)
+        for(;;)
         {
-                EXEC SQL fetch c1 into :my_partid_componet, :description;
+            printf("Number of the part (0 to quit )? ");
+            scanf("%d",&my_partid);         
 
-                printf("\t%d\t%s\n",my_partid_componet, description);
-        }
-        
-        printf("End of this transaction\n");
-        EXEC SQL close c1;                      
+            printf("Part Number : %d\n",my_partid);
+            if (my_partid == 0) 
+            { 
+                    EXEC SQL COMMIT; 
+                    printf("End of this transaction,get input 0\n");
+                    getchar(); 
+                    break;       
+            } 
+/*---------------------------------------------------------------------*/
+            EXEC SQL EXECUTE
+            BEGIN 
+                    SELECT part_id INTO :test 
+                    FROM ora00079.part 
+                    WHERE part_id in (select componentid from ora00079.component where partid=:my_partid)
+                    AND rownum=1;
+                    EXCEPTION
+                            WHEN NO_DATA_FOUND THEN 
+                            :none:=0;
+            END;
+            END-EXEC;
+/*---------------------------------------------------------------------*/
+
+         if (none==0)  
+           {
+                printf("Record not found \n");
+                none=1;
+           }
+        else
+            {
+ /*---------------------------------------------------------------------*/
+                EXEC SQL DECLARE c1 cursor for
+                        SELECT part_id, part_name 
+                        FROM ora00079.part 
+                        WHERE part_id in (select componentid from ora00079.component where partid=:my_partid);
+                
+                EXEC SQL open c1;
+
+                EXEC SQL WHENEVER NOT FOUND do break;
+                
+                printf("\tPart ID\tName of Part\t\n");
+                
+                for (;;)
+                {
+                        EXEC SQL fetch c1 into :my_partid_componet, :description;
+                        printf("\t%d\t%s\n",my_partid_componet, description);
+                }
+                
+                printf("End of this transaction\n");
+                EXEC SQL close c1;
+            }                      
         EXEC SQL COMMIT;                /* free locks and keep the connection */
         getchar();  //
         }
@@ -208,47 +230,64 @@ char    description[16];        /* 1 more octet for the binary 0 */
 
 void implosion()
 {
-int     my_partid_componet, my_partid;
+int     my_partid_componet, my_partid,none=1,test;
 char    description[16];        /* 1 more octet for the binary 0 */
                /* infinite loop until user enter a 0 */
-        for(;;){
-                printf("Number of the part (0 to quit )? ");
-                scanf("%d",&my_partid);         
-
-                printf("Part Number : %d\n",my_partid);
-                if (my_partid == 0) 
-                { 
-                        EXEC SQL COMMIT; 
-                        printf("End of this transaction,get input 0\n");
-                        getchar(); 
-                        break;       
-                } 
-                        
-        // EXEC SQL DECLARE c2 cursor for
-        //         SELECT componentid, part_name
-        //         FROM part,component
-        //         WHERE componentid=part_id AND partid= :my_partid ;
-            EXEC SQL DECLARE c2 cursor for
-                SELECT partid, part_name
-                FROM ora00079.part,ora00079.component
-                WHERE partid=part_id AND componentid= :my_partid ;
-        EXEC SQL open c2;
-
-        EXEC SQL WHENEVER NOT FOUND do break;
-        
-        printf("\tPart ID\tName of Part\t\n");
-            
-        for (;;)
+        for(;;)
         {
-                EXEC SQL fetch c2 into :my_partid_componet, :description;
+            printf("Number of the part (0 to quit )? ");
+            scanf("%d",&my_partid);         
 
-                printf("\t%d\t%s\n",my_partid_componet, description);
-        }
-        
-        printf("End of this transaction\n");
-        EXEC SQL close c2;                      
-        EXEC SQL COMMIT;                /* free locks and keep the connection */
-        getchar();  //
+            printf("Part Number : %d\n",my_partid);
+            if (my_partid == 0) 
+            { 
+                    EXEC SQL COMMIT; 
+                    printf("End of this transaction,get input 0\n");
+                    getchar(); 
+                    break;       
+            } 
+
+/*---------------------------------------------------------------------*/
+            EXEC SQL EXECUTE
+            BEGIN 
+                    SELECT part_id INTO :test 
+                    FROM ora00079.part 
+                    WHERE part_id in (select partid from ora00079.component where componentid=:my_partid)
+                    AND rownum=1;
+                    EXCEPTION
+                            WHEN NO_DATA_FOUND THEN 
+                            :none:=0;
+            END;
+            END-EXEC;
+/*---------------------------------------------------------------------*/            
+         if (none==0)  
+           {
+                printf("Record not found \n");
+                none=1;
+           }
+        else
+            {
+                EXEC SQL DECLARE c2 cursor for
+                        SELECT part_id, part_name 
+                        FROM ora00079.part 
+                        WHERE part_id in (select partid from ora00079.component where componentid=:my_partid);
+                EXEC SQL open c2;
+
+                EXEC SQL WHENEVER NOT FOUND do break;
+                
+                printf("\tPart ID\tName of Part\t\n");
+                
+                for (;;)
+                {
+                        EXEC SQL fetch c2 into :my_partid_componet, :description;
+                        printf("\t%d\t%s\n",my_partid_componet, description);
+                }
+                
+                printf("End of this transaction\n");
+                EXEC SQL close c2; 
+            }                     
+            EXEC SQL COMMIT;                /* free locks and keep the connection */
+            getchar();  //
         }
         return;
 }

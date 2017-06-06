@@ -110,7 +110,7 @@ char    description[16];     /* C needs 1 more octet than Oracle for binary 0
 int     my_emp_num,my_partid,s_stock, none=1;
         for (;;)                /* infinite loop until user enter a 0 */
         {
-                printf("Number of the part (0 to quit )? ");
+                printf("Number of the Emp (0 to quit )? ");
                 scanf("%d",&my_emp_num);         
 
                 printf("Part Number : %d\n",my_emp_num);
@@ -184,49 +184,97 @@ int     my_emp_num,my_partid,s_stock, none=1;
 
 void cre_po()
 {
-char    description[16];     /* C needs 1 more octet than Oracle for binary 0 
+char    for_po_date[9];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
-int     my_partid, none=1;
-//         for (;;)                /* infinite loop until user enter a 0 */
-//         {
-//                 printf("Number of the part (0 to quit )? ");
-//                 scanf("%d",&my_partid);         
+int     for_po_number,for_qty_order,for_product_id,for_emp_num,
+        sup_id,check_quit
+        none=1;
+        for (;;)                /* infinite loop until user enter a 0 */
+        {
+/*-------------- get_order_number -----------------*/ 
+ 
+        EXEC SQL EXECUTE
+        BEGIN 
+                SELECT po_number    INTO :for_po_number 
+                FROM (SELECT * FROM ora00079.purchase_order  ORDER BY rownum DESC) 
+                WHERE rownum = 1;
+                EXCEPTION
+                        WHEN NO_DATA_FOUND THEN 
+                        :none:=0;
+        END;
+        END-EXEC;
 
-//                 printf("Part Number : %d\n",my_partid);
-//                 if (my_partid == 0) 
-//                 { 
-//                         EXEC SQL COMMIT; 
-//                         printf("End of this transaction\n"); 
-//                         break; 
-//                 } 
+/*-------------- end of PL/SQL block -----------------*/
+        if (none==0)  
+        {
+                printf("Record not found \n");
+                none=1;
+        }
+        else
+        {  
+                for_po_number++;
+                printf("\n Create Purchase Order : %d\n ",for_po_number);
+                printf("input pa_agent number(0 to quit):");
+                scanf("%d",&for_emp_num); 
+                if (for_emp_num == 0) 
+                        { 
+                                EXEC SQL COMMIT; 
+                                printf("End of this transaction\n"); 
+                                break; 
+                        }
+                printf("input po_date:");
+                scanf("%s",for_po_date);          
+                printf("\nEmp_num %d\nDate: %s\n",for_emp_num,for_po_date);
+                printf("input supplier_id:");
+                scanf("%d",&sup_id);
 
-// /*-------------- Beginning the PL/SQL block -----------------*/ 
-
-//         EXEC SQL EXECUTE
-//         BEGIN 
-//                 SELECT part_name INTO :description      /* note: description needs 1 octet more */
-//                 FROM part WHERE part_id = :my_partid;
-//                 EXCEPTION
-//                         WHEN NO_DATA_FOUND THEN 
-//                         :none:=0;
-//         END;
-//         END-EXEC;
-
-// /*-------------- end of PL/SQL block -----------------*/ 
-
-//         if (none==0)  
-//            {
-//                 printf("Record not found \n");
-//                 none=1;
-//            }
-//         else
-//             {
-//                 printf("Name of the part\n"); 
-//                 printf("---------------\n"); 
-//                 printf("%s\n",description); 
-//             }
-//         EXEC SQL COMMIT;
-//         }                               /* end of infinite loop */
+                printf(" Purchase Order: %d\nEmp_num: %d\n supplier_id: %d,\nDate: %s\n check info(0 to quit)",for_po_number,for_emp_num,sup_id,for_po_date);
+                scanf("%d",&check_quit);
+                if (check_quit == 0) 
+                        { 
+                                EXEC SQL COMMIT; 
+                                printf("End of this transaction\n"); 
+                                break; 
+                        }
+/*----------------------initial purchase order and create pa_task----------------------------------*/
+                EXEC SQL INSERT INTO ora00079.purchase_order (po_number,po_date)
+                        values (:for_po_number,:for_po_date);
+                EXEC SQL INSERT INTO ora00079.contractual
+                        values (:sup_id,:for_po_number);
+                        
+                EXEC SQL INSERT INTO ora00079.pa_task 
+                        values (:for_emp_num,:for_po_number);  
+                
+                EXEC SQL COMMIT;
+/*--------------------------------------------------------------------*/
+                for(;;)
+                {
+                        printf("input product_id,qty_order (0 to end, ex.2001,100 )\n");
+                        scanf("%d,%d",&for_product_id,&for_qty_order);
+                        if (for_product_id == 0) 
+                        { 
+                                EXEC SQL COMMIT; 
+                                printf("End of this transaction\n"); 
+                                break; 
+                        }
+                        /*---------------------------------*/
+                        EXEC SQL INSERT INTO ora00079.detail 
+                                VALUES (:for_po_number,:for_product_id,:for_qty_order,0);  
+                        EXEC SQL COMMIT;
+                        /*---------------------------------*/ 
+                }
+                
+                // if (my_partid == 0) 
+                // { 
+                //         EXEC SQL COMMIT; 
+                //         printf("End of this transaction\n"); 
+                //         break; 
+                // } 
+        } 
+                
+       
+        EXEC SQL COMMIT;
+        }                               /* end of infinite loop */
         return; 
 }
 
@@ -242,7 +290,7 @@ float unit_prod_cost=0.0f;
 int   for_supplier_id,for_product_id,for_unit_prod,my_partid,none=1;
         for (;;)                /* infinite loop until user enter a 0 */
         {
-                printf("Number of the part (0 to quit )? ");
+                printf("Number of the part (0 to quit ,2001-2006)? ");
                 scanf("%d",&my_partid);         
 
                 printf("Part Number : %d\n",my_partid);
@@ -277,7 +325,7 @@ int   for_supplier_id,for_product_id,for_unit_prod,my_partid,none=1;
         else
             {
 /*-------------- Beginning the PL/SQL block -----------------*/ 
-                 EXEC SQL declare cursor_pot_supp cursor for
+                EXEC SQL declare cursor_pot_supp cursor for
                 SELECT  supplier_id,product_id,unit,unit_price
                 FROM ora00079.pot_supplier_pa
                 WHERE part_id=:my_partid;
@@ -286,12 +334,12 @@ int   for_supplier_id,for_product_id,for_unit_prod,my_partid,none=1;
 
                 EXEC SQL WHENEVER NOT FOUND do break;
                 
-                printf("\tsupplier_id\tproduct_id\tunit_prod\tunit_prod_cost\n");       
+                printf("\tSupplier_id\tProduct_id\tUnit_prod\tUnit_prod_cost\n");       
                 for (;;)
                 {
-                        EXEC SQL fetch c1 into :for_supplier_id, :for_product_id, :for_unit_prod, :unit_prod_cost ;
+                        EXEC SQL fetch cursor_pot_supp into :for_supplier_id, :for_product_id, :for_unit_prod, :unit_prod_cost ;
 
-                        printf("\t%4d\t%4d\t\t%4d\t.2f\n",for_supplier_id, for_product_id,for_unit_prod,unit_prod_cost);
+                        printf("\t%d\t\t%d\t\t%d\t\t%.2f\n",for_supplier_id, for_product_id,for_unit_prod,unit_prod_cost);
                 }
                 
                 printf("End of this transaction\n");
