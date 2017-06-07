@@ -1,0 +1,26 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [fr] (Win98; I) [Netscape]">
+   <title>modresp</title>
+</head>
+
+<body text="#000000" bgcolor="#B7D0C1" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<center><h1><font color="#CCFFFF"></font>8trd157 - lab6<br><br>Modresp</h1>
+<br><br><br><br>
+<p><h4><center>Execution of the following command :
+    SELECT part_number,emp_number FROM ora00079.responsible WHERE part_number =  '$part_number'
+    UPDATE ora00079.responsibleSET emp_number = '$emp_number' WHERE part_number =  '$part_number'
+    SELECT part_number,emp_number FROM ora00079.responsible WHERE part_number =  '$part_number'
+ <i></i></h4>
+<br>
+
+<form action="modresp.php" method="post">
+<h3>Enter a part number(form 2001 to 2006)</h3>
+<input type=text name="part_number" size=4><br>
+<input type=text name="emp_before" size=4><br>
+<h3>Enter a agent number(form 1001 to 1006)</h3>
+<input type=text name="emp_number" size=4><br><br>
+<input type="submit" value="Submit"></center>
+</form>
+</body></html>

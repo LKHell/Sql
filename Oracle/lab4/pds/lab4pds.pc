@@ -21,6 +21,7 @@ void do_connect();
 
 void modresp();
 void quant_();
+void respon_();
 
 int print_menu();
 
@@ -42,7 +43,8 @@ int main()
                   break;
           case 2: quant_();
                   break;
-          
+          case 3: respon_();
+                  break;
           case 5: print_menu();
                   break;
           case 6: puts("\nAu revoir Sayonara Bye bye, Ni Hao"); 
@@ -119,7 +121,8 @@ int     my_partid,emp_num1,emp_num2, none=1;
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT emp_number INTO : emp_num1     
-                FROM ora00079.responsible WHERE part_number = :my_partid;
+                FROM ora00079.responsible WHERE part_number = :my_partid
+                AND rownum = 1;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
@@ -201,7 +204,7 @@ void quant_()
     for (;;)                /* infinite loop until user enter a 0 */
     {
 		sum=0;
-		printf("Number of the pa_agent (0 to quit )? ");
+		printf("Number of the pa_agent (1001~1006,0 to quit )? ");
 		scanf("%d",&my_emp_num);         
 		printf("Part Number : %d\n",my_emp_num);
 		if (my_emp_num == 0) 
@@ -244,6 +247,39 @@ void quant_()
     }                               /* end of infinite loop */
     return; 
 }
+/* ******************************************************************************************
+*       Display for each agent (emp_num, emp_name) the list of all parts(part_id, part_name) 
+*       under his responsability
+*  ******************************************************************************************
+*/
+void respon_(){
+        int get_emp_number,get_part_id;
+        char get_pa_name[16],get_part_name[16];
+        {
+        /*-------------- Beginning the PL/SQL block -----------------*/ 
+
+    EXEC SQL DECLARE c2 CURSOR FOR 
+    SELECT emp_num,pa_name,part_id,part_name
+            FROM ora00079.pa_agent,ora00079.part,ora00079.responsible
+            WHERE emp_num=emp_number AND part_number=part_id;      
+	EXEC SQL OPEN C2;
+	EXEC SQL WHENEVER NOT FOUND do break;
+	printf("EMP_NUMBER\tPA_NAME\tPART_ID\tPART_NAME\n"); 
+    printf("---------------\n"); 
+        /*-------------- end of PL/SQL block -----------------*/ 
+
+	for (;;)
+	{
+			EXEC SQL fetch c2 into :get_emp_number, :get_pa_name, :get_part_id, :get_part_name;
+			 printf("%d\t%s\t%d\t%s\n",get_emp_number,get_pa_name,get_part_id,get_part_name);
+	}
+        exec sql CLOSE c2;
+    EXEC SQL COMMIT;
+    }                               /* end of infinite loop */
+    return; 
+}
+
+
 
 /* ************************************************************
 *       Function print the menu and choose the transaction
@@ -257,6 +293,7 @@ int print_menu()
         printf("\t *****************************************\n");
         printf("\t (1) modresp\n");
         printf("\t (2) quant\n");
+        printf("\t (3) respon\n");
         printf("\t (5) DISPLAY MENU\n");
         printf("\t (6) QUIT\n");
         printf("Enter your choice ? "); 

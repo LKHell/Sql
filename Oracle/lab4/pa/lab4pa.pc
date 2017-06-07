@@ -187,7 +187,7 @@ void cre_po()
 char    for_po_date[9];     /* C needs 1 more octet than Oracle for binary 0 
                                 at the end of a C character type */
 int     for_po_number,for_qty_order,for_product_id,for_emp_num,
-        sup_id,check_quit
+        sup_id,check_quit,
         none=1;
         for (;;)                /* infinite loop until user enter a 0 */
         {
@@ -217,11 +217,10 @@ int     for_po_number,for_qty_order,for_product_id,for_emp_num,
                 printf("input pa_agent number(0 to quit):");
                 scanf("%d",&for_emp_num); 
                 if (for_emp_num == 0) 
-                        { 
-                                EXEC SQL COMMIT; 
-                                printf("End of this transaction\n"); 
-                                break; 
-                        }
+                { 
+                        printf("End of this transaction\n"); 
+                        break; 
+                }
                 printf("input po_date:");
                 scanf("%s",for_po_date);          
                 printf("\nEmp_num %d\nDate: %s\n",for_emp_num,for_po_date);
@@ -249,7 +248,7 @@ int     for_po_number,for_qty_order,for_product_id,for_emp_num,
 /*--------------------------------------------------------------------*/
                 for(;;)
                 {
-                        printf("input product_id,qty_order (0 to end, ex.2001,100 )\n");
+                        printf("input product_id,qty_order (0 to end, ex.7001,100 )\n");
                         scanf("%d,%d",&for_product_id,&for_qty_order);
                         if (for_product_id == 0) 
                         { 

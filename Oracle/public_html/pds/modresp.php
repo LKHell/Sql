@@ -1,18 +1,12 @@
 <?php
 /**************************************************************************
-*	Author: Paul Girard, Ph.D., UQAC
-*	Date:	March 2016
-*	Course:	8trd157-TUT
-*	Objective: Show an example of SQL request activated by an html page 
-*		on the table part of a user schema defined in cndb
-***************************************************************************	
 *	1. Creation of a connection identifier in the user schema to the Oracle
 *	   database. OCIError returns false if there is a connection error.
 *	   The function header with the parameter Location can REDIRECT the execution to 
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00059", "Zxz9sQ", $bd);
+$connection = OCI_connect("ora00057", "s48d7M", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -36,10 +30,34 @@ $chain .= "</font><br><br>\n";
 $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center>\n";
 
 /*	2. Analysis of the SQL request 	*/
-// $curs1 = OCIparse($connection, "SELECT emp_number, part_number FROM responsible where part_number like '$part_number%'");
-$curs1 = OCIparse($connection, "UPDATE ora00079.responsible SET emp_number= '$emp_number' WHERE part_number='$part_number' AND emp_number= '$emp_number2'  ");
-// $curs1 = OCIparse($connection, "UPDATE responsible SET emp_number= 1001 WHERE part_number=2001");
+
+$curs1 = OCIparse($connection, " SELECT part_number,emp_number 
+            FROM ora00079.responsible 
+            WHERE part_number =  '$part_number'");
+$curs2 = OCIparse($connection, " UPDATE ora00079.responsible
+            SET emp_number = '$emp_number' 
+            WHERE part_number =  '$part_number'AND emp_number = '$emp_before'");
+$curs3 = OCIparse($connection, " SELECT part_number,emp_number 
+            FROM ora00079.responsible 
+            WHERE part_number =  '$part_number'");
+
 if(OCIError($curs1))
+	{
+	OCIlogoff($connection);
+	$url = "err_base.html";
+	header("Location: $url");
+	exit;
+	};
+
+if(OCIError($curs2))
+	{
+	OCIlogoff($connection);
+	$url = "err_base.html";
+	header("Location: $url");
+	exit;
+	};
+
+if(OCIError($curs3))
 	{
 	OCIlogoff($connection);
 	$url = "err_base.html";
@@ -51,36 +69,32 @@ if(OCIError($curs1))
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
 */
-OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
-OCIFreeStatement($curs1);
+OCI_Define_By_Name($curs1,"PART_NUMBER",$part_number);
+OCI_Define_By_Name($curs1,"EMP_NUMBER",$emp_number);
 
-$curs2 = OCIparse($connection, "SELECT part_number,emp_number FROM ora00079.responsible  WHERE part_number='$part_number'");
-
-if(OCIError($curs2))
-	{
-	OCIlogoff($connection);
-	$url = "err_base.html";
-	header("Location: $url");
-	exit;
-	};
-
-OCI_Define_By_Name($curs2,"PART_NUMBER",$part_number2);
-OCI_Define_By_Name($curs2,"EMP_NUMBER",$emp_number2);
-
-
+OCI_Define_By_Name($curs3,"PART_NUMBER",$part_number);
+OCI_Define_By_Name($curs3,"EMP_NUMBER",$emp_number);
 /*	4. Execution of the SQL request with an immediate commit to free locks */
-OCIExecute($curs2, OCI_COMMIT_ON_SUCCESS);
-$chain .= "<b>EMP_NUM   &nbsp &nbsp &nbsp   PART ID </b><br>\n";
+OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
+$chain .= "<b>before modification</b><br>\n";
+$chain .= "<b>part_number &nbsp &nbsp  emp_number</b><br>\n";
 
 /*	5. Read each row from the result of the Sql request */	
-while (OCIfetch($curs2))
-	$chain .= "$emp_number2  &nbsp &nbsp &nbsp &nbsp &nbsp $part_number2<br>\n";
-
+while (OCIfetch($curs1))
+	$chain .= "$part_number  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp $emp_number<br>\n";
+OCIExecute($curs2, OCI_COMMIT_ON_SUCCESS);
+OCIExecute($curs3, OCI_COMMIT_ON_SUCCESS);
+$chain .= "<b>after modification</b><br>\n";
+$chain .= "<b>part_number &nbsp &nbsp  emp_number</b><br>\n";
+while (OCIfetch($curs3))
+	$chain .= "$part_number  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp $emp_number<br>\n";
 /*	6. Terminate the end of the html format page */
 $chain .= "</body></html>\n";
 print "<b>Version of this server :</b> " . OCIServerVersion($connection);
 /*	7. Free all ressources used by this command and quit */
+OCIFreeStatement($curs1);
 OCIFreeStatement($curs2);
+OCIFreeStatement($curs3);
 OCIlogoff($connection);
 
 /*	8. Transmission of the html page ==> Apache ==> client */

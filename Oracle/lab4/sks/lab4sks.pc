@@ -133,7 +133,7 @@ void value_()
         EXEC SQL OPEN c2;
         EXEC SQL WHENEVER NOT FOUND do break;
         
-        printf("\tPart ID\t\tSTOCK_QTY\n");
+        printf("\tPart ID\t\tSTOCK_QTY Values\n");
         for(;;)
         {
                 EXEC SQL FETCH c2 INTO :get_part_id,:get_value;
