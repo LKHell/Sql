@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00123", "RRfsJu", $bd);
+$connection = OCI_connect("******", "******", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";

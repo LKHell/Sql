@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00079", "QCe6eu", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -38,9 +38,9 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 /*	2. Analysis of the SQL request 	*/
 /*
 SELECT part_id 
-FROM ora00079.part  WHERE part_id=:my_partid*/
+FROM 'DBA'.part  WHERE part_id=:my_partid*/
 $cursD = OCIparse($connection, 
-" DELETE FROM ora00079.component WHERE partid='$partid' AND componentid='$componentid'");
+" DELETE FROM 'DBA'.component WHERE partid='$partid' AND componentid='$componentid'");
 if(OCIError($cursD))
 	{
 	OCIlogoff($connection);
@@ -51,7 +51,7 @@ if(OCIError($cursD))
 OCIExecute($cursD, OCI_COMMIT_ON_SUCCESS);
 OCIFreeStatement($cursD);
 $curs1 = OCIparse($connection, 
-"SELECT partid, componentid FROM ora00079.component WHERE partid='$partid' ");
+"SELECT partid, componentid FROM 'DBA'.component WHERE partid='$partid' ");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);

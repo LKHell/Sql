@@ -53,7 +53,7 @@ int main()
          }
         }
         
-        EXEC SQL COMMIT WORK RELEASE;           /* libère les verroux et déconnecte */
+        EXEC SQL COMMIT WORK RELEASE;           /* libï¿½re les verroux et dï¿½connecte */
                                         
         exit(0); 
 }                       /* end of main() program */
@@ -87,7 +87,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="userid/password";
+   char *uid="*****/*****"; /* userid/password */
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");

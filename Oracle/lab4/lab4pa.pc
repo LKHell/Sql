@@ -2,8 +2,8 @@
 *       Author:         Paul Girard Ph.D., UQAC
 *       Date:           May 2017
 *       usertype: PA
-*                       Zhang Yuhao 
-*       tjut code :     20145992
+*                       
+*      
 *       Objective:      Program using Pro*C/C++ and gcc to show how to use 
 *                       different type of PL/SQL blocks & SQL in a C PGM
 *
@@ -90,7 +90,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="ora00123/RRfsJu";
+   char *uid="*****/*****";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -127,7 +127,7 @@ int     my_emp_num,my_partid,s_stock, none=1;
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT part_id INTO :my_partid 
-                FROM ora00079.part_pa
+                FROM 'DBA account'.part_pa
                 WHERE emp_number = :my_emp_num 
                 AND rownum=1;
                 EXCEPTION
@@ -148,7 +148,7 @@ int     my_emp_num,my_partid,s_stock, none=1;
 /*---------------------------------------------------------------------*/
                 EXEC SQL declare c2 cursor for
                         SELECT part_id ,part_name,min_qty-order_qty-stock_qty X
-                        FROM ora00079.part_pa               
+                        FROM 'DBA account'.part_pa               
                         WHERE emp_number = :my_emp_num ;
                 
                 EXEC SQL open c2;
@@ -196,7 +196,7 @@ int     for_po_number,for_qty_order,for_product_id,for_emp_num,
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT po_number    INTO :for_po_number 
-                FROM (SELECT * FROM ora00079.purchase_order  ORDER BY rownum DESC) 
+                FROM (SELECT * FROM 'DBA account'.purchase_order  ORDER BY rownum DESC) 
                 WHERE rownum = 1;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
@@ -236,12 +236,12 @@ int     for_po_number,for_qty_order,for_product_id,for_emp_num,
                                 break; 
                         }
 /*----------------------initial purchase order and create pa_task----------------------------------*/
-                EXEC SQL INSERT INTO ora00079.purchase_order (po_number,po_date)
+                EXEC SQL INSERT INTO 'DBA account'.purchase_order (po_number,po_date)
                         values (:for_po_number,:for_po_date);
-                EXEC SQL INSERT INTO ora00079.contractual
+                EXEC SQL INSERT INTO 'DBA account'.contractual
                         values (:sup_id,:for_po_number);
                         
-                EXEC SQL INSERT INTO ora00079.pa_task 
+                EXEC SQL INSERT INTO 'DBA account'.pa_task 
                         values (:for_emp_num,:for_po_number);  
                 
                 EXEC SQL COMMIT;
@@ -257,7 +257,7 @@ int     for_po_number,for_qty_order,for_product_id,for_emp_num,
                                 break; 
                         }
                         /*---------------------------------*/
-                        EXEC SQL INSERT INTO ora00079.detail 
+                        EXEC SQL INSERT INTO 'DBA account'.detail 
                                 VALUES (:for_po_number,:for_product_id,:for_qty_order,0);  
                         EXEC SQL COMMIT;
                         /*---------------------------------*/ 
@@ -305,7 +305,7 @@ int   for_supplier_id,for_product_id,for_unit_prod,my_partid,none=1;
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT supplier_id INTO :for_supplier_id      
-                FROM ora00079.pot_supplier_pa 
+                FROM 'DBA account'.pot_supplier_pa 
                 WHERE part_id = :my_partid
                 AND rownum=1;
                 EXCEPTION
@@ -326,7 +326,7 @@ int   for_supplier_id,for_product_id,for_unit_prod,my_partid,none=1;
 /*-------------- Beginning the PL/SQL block -----------------*/ 
                 EXEC SQL declare cursor_pot_supp cursor for
                 SELECT  supplier_id,product_id,unit,unit_price
-                FROM ora00079.pot_supplier_pa
+                FROM 'DBA account'.pot_supplier_pa
                 WHERE part_id=:my_partid;
         
                 EXEC SQL open cursor_pot_supp;

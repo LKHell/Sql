@@ -14,7 +14,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00079", "QCe6eu", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -38,9 +38,9 @@ $chain .= "</font><br><br>\n";
 $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center>\n";
 
 /*	2. insert 	*/
-/*SELECT part_id FROM ora00079.part  WHERE part_id=:my_partid*/
+/*SELECT part_id FROM 'DBA'.part  WHERE part_id=:my_partid*/
 $cursInsert = OCIparse($connection, 
-"INSERT INTO  ora00079.component VALUES('$partid','$componentid')");
+"INSERT INTO  'DBA'.component VALUES('$partid','$componentid')");
 if(OCIError($cursInsert))
 	{
 	OCIlogoff($connection);
@@ -53,7 +53,7 @@ OCIFreeStatement($cursInsert);
 
 /*	 Select  	*/
 $curs1 = OCIparse($connection, 
-"SELECT partid, componentid FROM ora00079.component WHERE partid='$partid' AND componentid = '$componentid'");
+"SELECT partid, componentid FROM 'DBA'.component WHERE partid='$partid' AND componentid = '$componentid'");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);

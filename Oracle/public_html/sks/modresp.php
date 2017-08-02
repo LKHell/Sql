@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00059", "Zxz9sQ", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -37,7 +37,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 // $curs1 = OCIparse($connection, "SELECT emp_number, part_number FROM responsible where part_number like '$part_number%'");
-$curs1 = OCIparse($connection, "UPDATE ora00079.responsible SET emp_number= '$emp_number' WHERE part_number='$part_number' AND emp_number= '$emp_number2'  ");
+$curs1 = OCIparse($connection, "UPDATE 'DBA'.responsible SET emp_number= '$emp_number' WHERE part_number='$part_number' AND emp_number= '$emp_number2'  ");
 // $curs1 = OCIparse($connection, "UPDATE responsible SET emp_number= 1001 WHERE part_number=2001");
 if(OCIError($curs1))
 	{
@@ -54,7 +54,7 @@ if(OCIError($curs1))
 OCIExecute($curs1, OCI_COMMIT_ON_SUCCESS);
 OCIFreeStatement($curs1);
 
-$curs2 = OCIparse($connection, "SELECT part_number,emp_number FROM ora00079.responsible  WHERE part_number='$part_number'");
+$curs2 = OCIparse($connection, "SELECT part_number,emp_number FROM 'DBA'.responsible  WHERE part_number='$part_number'");
 
 if(OCIError($curs2))
 	{

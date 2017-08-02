@@ -88,7 +88,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="ora00137/wuUmc3";
+   char *uid="******/******";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -148,7 +148,7 @@ INTO :po_number_i,:status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_
                 SELECT  status,po_date,pa_name,supplier_id,supplier_name,addr,contact 
                 INTO :status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_c,:addr_c,:contact_c     
                 
-                FROM ora00079.purchase_sk 
+                FROM 'DBA account'.purchase_sk 
                 WHERE po_number = :set_po_number
                 AND   rownum=1;
                 
@@ -173,7 +173,7 @@ INTO :po_number_i,:status_c,:po_date_c,:pa_name_c,:supplier_id_i,:supplier_name_
 //------------------get product_info-----------------------------
         EXEC SQL DECLARE c1 CURSOR for
                 SELECT  product_id,product_name,unit,unit_price,qty_order,qty_rec 
-                FROM    ora00079.purchase_sk
+                FROM    'DBA account'.purchase_sk
                 WHERE po_number = :set_po_number;
 
         EXEC SQL open c1;
@@ -222,7 +222,7 @@ void part_out()
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT stock_qty INTO :stock_qty_      
-                FROM ora00079.part WHERE part_id = :part_id_;
+                FROM 'DBA account'.part WHERE part_id = :part_id_;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
@@ -262,7 +262,7 @@ void part_out()
 //----------------------------------------------------
                 EXEC SQL EXECUTE
                 BEGIN 
-                        UPDATE ora00079.part     
+                        UPDATE 'DBA account'.part     
                         SET stock_qty=stock_qty-:out_qty_
                         WHERE part_id = :part_id_;
                         EXCEPTION
@@ -322,7 +322,7 @@ void pord_in()
                 EXEC SQL EXECUTE
                 BEGIN 
                         SELECT  qty_order INTO : get_qty_order
-                        FROM ora00079.detail     
+                        FROM 'DBA account'.detail     
                         WHERE po_number = :get_po_number
                         AND product_id = :get_product_id;
                         EXCEPTION
@@ -351,18 +351,18 @@ void pord_in()
                 /*-------------------product_id != part_id--------------------------------*/
                 EXEC SQL EXECUTE
                 BEGIN 
-                        UPDATE  ora00079.detail     
+                        UPDATE  'DBA account'.detail     
                         SET     qty_rec=:get_qty_rec
                         WHERE   po_number = :get_po_number
                         AND     product_id = :get_product_id;
                         
                         
-                        UPDATE  ora00079.purchase_order     
+                        UPDATE  'DBA account'.purchase_order     
                         SET     status=:set_status
                         WHERE   po_number = :get_po_number;
                        
                         
-                        UPDATE  ora00079.part_sk   
+                        UPDATE  'DBA account'.part_sk   
                         SET     stock_qty=stock_qty+:set_qty,
                                 order_qty=order_qty-:set_qty
                         WHERE   product_id = :get_product_id

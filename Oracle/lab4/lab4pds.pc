@@ -1,6 +1,6 @@
 /*
 *       Author:         Paul Girard Ph.D., UQAC
-*       Modified by 	LiuTao 20145977 
+*       Modified by 	
 *		UserType: 		PDS
 *       Date:           May 2017 
 *       Objective:      Program using Pro*C/C++ and gcc to show how to use 
@@ -88,7 +88,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="ora00057/s48d7M";
+   char *uid="******/******";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -121,7 +121,7 @@ int     my_partid,emp_num1,emp_num2, none=1;
         EXEC SQL EXECUTE
         BEGIN 
                 SELECT emp_number INTO : emp_num1     
-                FROM ora00079.responsible WHERE part_number = :my_partid
+                FROM 'DBA account'.responsible WHERE part_number = :my_partid
                 AND rownum = 1;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
@@ -163,7 +163,7 @@ int     my_partid,emp_num1,emp_num2, none=1;
 
                 EXEC SQL EXECUTE
                 BEGIN 
-                        UPDATE ora00079.responsible 
+                        UPDATE 'DBA account'.responsible 
                         SET emp_number=:emp_num2 
                         WHERE part_number=:my_partid;
                         EXCEPTION
@@ -220,11 +220,11 @@ void quant_()
 
         /* SELECT sum(total) FROM purchase_order,pa_task WHERE emp_num = 1001 AND pa_task.po_number=purchase_order.po_number; */
             // SELECT pa_task.po_number,total 
-            // FROM ora00079.purchase_order,ora00079.pa_task 
+            // FROM 'DBA account'.purchase_order,'DBA account'.pa_task 
             // WHERE emp_num = :my_emp_num 
             // AND pa_task.po_number=purchase_order.po_number;
 			SELECT po_number,total 
-            FROM ora00079.purchase_pds 
+            FROM 'DBA account'.purchase_pds 
             WHERE emp_num = :my_emp_num;
            
 	EXEC SQL OPEN C1;
@@ -260,7 +260,7 @@ void respon_(){
 
     EXEC SQL DECLARE c2 CURSOR FOR 
     SELECT emp_num,pa_name,part_id,part_name
-            FROM ora00079.pa_agent,ora00079.part,ora00079.responsible
+            FROM 'DBA account'.pa_agent,'DBA account'.part,'DBA account'.responsible
             WHERE emp_num=emp_number AND part_number=part_id;      
 	EXEC SQL OPEN C2;
 	EXEC SQL WHENEVER NOT FOUND do break;

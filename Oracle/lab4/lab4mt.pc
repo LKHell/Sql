@@ -1,6 +1,6 @@
 /*
 *       Author:         Paul Girard Ph.D., UQAC
-*       Editor:         Li Kunhao 20145975 ora00079
+*       Editor:         Li Kunhao 
 *       Date:           May 2017 
 *       Objective:      Program using Pro*C/C++ and gcc to show how to use 
 *                       different type of PL/SQL blocks & SQL in a C PGM
@@ -98,7 +98,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="ora00079/QCe6eu";
+   char *uid="******/******";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -134,7 +134,7 @@ float   part_unit_price=0.0f;
         BEGIN 
                 SELECT part_name,unit,unit_price,stock_qty,order_qty,min_qty 
                 INTO :description,:part_unit,:part_unit_price,:part_s_qty,:part_o_qty,:part_m_qty      /* note: description needs 1 octet more */
-                FROM ora00079.part WHERE part_id = :my_partid;
+                FROM 'DBA account'.part WHERE part_id = :my_partid;
                 EXCEPTION
                         WHEN NO_DATA_FOUND THEN 
                         :none:=0;
@@ -185,8 +185,8 @@ char    description[16];        /* 1 more octet for the binary 0 */
             EXEC SQL EXECUTE
             BEGIN 
                     SELECT part_id INTO :test 
-                    FROM ora00079.part 
-                    WHERE part_id in (select componentid from ora00079.component where partid=:my_partid)
+                    FROM 'DBA account'.part 
+                    WHERE part_id in (select componentid from 'DBA account'.component where partid=:my_partid)
                     AND rownum=1;
                     EXCEPTION
                             WHEN NO_DATA_FOUND THEN 
@@ -205,8 +205,8 @@ char    description[16];        /* 1 more octet for the binary 0 */
  /*---------------------------------------------------------------------*/
                 EXEC SQL DECLARE c1 cursor for
                         SELECT part_id, part_name 
-                        FROM ora00079.part 
-                        WHERE part_id in (select componentid from ora00079.component where partid=:my_partid);
+                        FROM 'DBA account'.part 
+                        WHERE part_id in (select componentid from 'DBA account'.component where partid=:my_partid);
                 
                 EXEC SQL open c1;
 
@@ -256,8 +256,8 @@ char    description[16];        /* 1 more octet for the binary 0 */
             EXEC SQL EXECUTE
             BEGIN 
                     SELECT part_id INTO :test 
-                    FROM ora00079.part 
-                    WHERE part_id in (select partid from ora00079.component where componentid=:my_partid)
+                    FROM 'DBA account'.part 
+                    WHERE part_id in (select partid from 'DBA account'.component where componentid=:my_partid)
                     AND rownum=1;
                     EXCEPTION
                             WHEN NO_DATA_FOUND THEN 
@@ -274,8 +274,8 @@ char    description[16];        /* 1 more octet for the binary 0 */
             {
                 EXEC SQL DECLARE c2 cursor for
                         SELECT part_id, part_name 
-                        FROM ora00079.part 
-                        WHERE part_id in (select partid from ora00079.component where componentid=:my_partid);
+                        FROM 'DBA account'.part 
+                        WHERE part_id in (select partid from 'DBA account'.component where componentid=:my_partid);
                 EXEC SQL open c2;
 
                 EXEC SQL WHENEVER NOT FOUND do break;
@@ -321,7 +321,7 @@ void crecomp()
             EXEC SQL EXECUTE
             BEGIN 
                     SELECT part_id INTO :test 
-                    FROM ora00079.part 
+                    FROM 'DBA account'.part 
                     WHERE part_id=:my_partid
                     AND rownum=1;
                     EXCEPTION
@@ -350,7 +350,7 @@ void crecomp()
                 }
                 EXEC SQL EXECUTE
                 BEGIN 
-                        INSERT INTO ora00079.component (partid,componentid)
+                        INSERT INTO 'DBA account'.component (partid,componentid)
                         values (:my_partid,:my_partid_componet); 
                         
                         if SQL%NOTFOUND then :none:=0; 
@@ -363,7 +363,7 @@ void crecomp()
                 EXEC SQL EXECUTE
                 BEGIN 
                 SELECT partid INTO :test 
-                    FROM ora00079.component
+                    FROM 'DBA account'.component
                     where  partid=:my_partid
                     and componentid=:my_partid_componet;
                     
@@ -412,7 +412,7 @@ void cancomp()
             EXEC SQL EXECUTE
             BEGIN 
                     SELECT partid INTO :test 
-                    FROM ora00079.component 
+                    FROM 'DBA account'.component 
                     WHERE partid=:my_partid
                     AND rownum=1;
                     EXCEPTION
@@ -442,7 +442,7 @@ void cancomp()
                 EXEC SQL EXECUTE
                 BEGIN 
                         DELETE 
-                        FROM ora00079.component 
+                        FROM 'DBA account'.component 
                         WHERE partid=:my_partid
                         AND componentid=:my_partid_componet; 
                         

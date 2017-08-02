@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00079", "QCe6eu", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -38,7 +38,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 /*	2. Analysis of the SQL request 	*/
 
 $curs1 = OCIparse($connection, 
-"SELECT part_id, part_name FROM ora00079.part WHERE part_id in (select componentid from ora00079.component where partid like '$partid%')");
+"SELECT part_id, part_name FROM 'DBA'.part WHERE part_id in (select componentid from 'DBA'.component where partid like '$partid%')");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);

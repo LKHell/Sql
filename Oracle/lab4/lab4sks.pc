@@ -84,7 +84,7 @@ void sql_error(char *msg)
 
 void do_connect()
 {
-   char *uid="ora00059/Zxz9sQ";
+   char *uid="*****/******";
 
         EXEC SQL CONNECT :uid; 
         printf("Connected to Oracle schema\n");
@@ -101,7 +101,7 @@ void invent_()
 
         EXEC SQL DECLARE c1 CURSOR FOR
                 SELECT part_id, stock_qty
-                FROM ora00079.part_sks;
+                FROM 'DBA account'.part_sks;
         EXEC SQL OPEN c1;
         EXEC SQL WHENEVER NOT FOUND do break;
         
@@ -129,7 +129,7 @@ void value_()
 
         EXEC SQL DECLARE c2 CURSOR FOR
                 SELECT part_id, stock_qty*unit_price
-                FROM ora00079.part_sks;
+                FROM 'DBA account'.part_sks;
         EXEC SQL OPEN c2;
         EXEC SQL WHENEVER NOT FOUND do break;
         

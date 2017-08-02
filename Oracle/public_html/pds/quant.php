@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00057", "s48d7M", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -38,7 +38,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 /*	2. Analysis of the SQL request 	*/
 
 $curs1 = OCIparse($connection, " SELECT po_number,total 
-            FROM ora00079.purchase_pds 
+            FROM 'DBA'.purchase_pds 
             WHERE emp_num = '$emp_number'");
 if(OCIError($curs1))
 	{

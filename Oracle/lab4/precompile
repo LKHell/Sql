@@ -1,1 +1,1 @@
-proc INAME=lab4base.pc CODE=ANSI_C SQLCHECK=semantics mode=oracle userid=user/password char_map=charz
+proc INAME=lab4base.pc CODE=ANSI_C SQLCHECK=semantics mode=oracle userid=******/****** char_map=charz

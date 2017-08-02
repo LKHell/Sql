@@ -1,24 +1,24 @@
 -- pds
-GRANT SELECT,UPDATE ON responsible TO ora00057;
-GRANT SELECT ON part TO ora00057;
-GRANT SELECT ON pa_agent TO ora00057;
-GRANT SELECT ON purchase_pds TO ora00057;
+GRANT SELECT,UPDATE ON responsible TO user057;
+GRANT SELECT ON part TO user057;
+GRANT SELECT ON pa_agent TO user057;
+GRANT SELECT ON purchase_pds TO user057;
 -- sks
-GRANT SELECT ON part_sks TO ora00059;
-GRANT UPDATE,SELECT ON responsible TO ora00059;
+GRANT SELECT ON part_sks TO user059;
+GRANT UPDATE,SELECT ON responsible TO user059;
 --sk
-GRANT SELECT,UPDATE ON part_sk  TO ora00137;
-GRANT SELECT,UPDATE ON part  TO ora00137;
-GRANT SELECT ON purchase_sk TO ora00137;
-GRANT UPDATE ON purchase_order TO ora00137;
-GRANT SELECT,UPDATE ON detail TO ora00137;
+GRANT SELECT,UPDATE ON part_sk  TO user137;
+GRANT SELECT,UPDATE ON part  TO user137;
+GRANT SELECT ON purchase_sk TO user137;
+GRANT UPDATE ON purchase_order TO user137;
+GRANT SELECT,UPDATE ON detail TO user137;
 --pa
-GRANT SELECT,INSERT ON detail TO ora00123;
-GRANT SELECT,INSERT ON contractual TO ora00123;
-GRANT SELECT,INSERT ON pa_task TO ora00123;
-GRANT SELECT,INSERT ON purchase_order TO ora00123;
-GRANT SELECT ON part_pa TO ora00123;
-GRANT SELECT ON pot_supplier_pa TO ora00123;
-GRANT SELECT ON part TO ora00123;
+GRANT SELECT,INSERT ON detail TO user123;
+GRANT SELECT,INSERT ON contractual TO user123;
+GRANT SELECT,INSERT ON pa_task TO user123;
+GRANT SELECT,INSERT ON purchase_order TO user123;
+GRANT SELECT ON part_pa TO user123;
+GRANT SELECT ON pot_supplier_pa TO user123;
+GRANT SELECT ON part TO user123;
 
 -- Tech is DBA

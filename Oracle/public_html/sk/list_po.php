@@ -12,7 +12,7 @@
 *	   another html page. 
 */
 $bd = "cndb";
-$connection = OCI_connect("ora00137", "wuUmc3", $bd);
+$connection = OCI_connect("username", "password", $bd);
 if(OCIError($connection)) 
 	{
 	$url = "connection_error.html";
@@ -37,7 +37,7 @@ $chain .= "<center><b><font size=+3>Result of the SQL request</font></b></center
 
 /*	2. Analysis of the SQL request 	*/
 
-$curs1 = OCIparse($connection, "SELECT  status,po_date,pa_name,supplier_id,supplier_name,addr,contact FROM ora00079.purchase_sk WHERE po_number = '$po_number' AND rownum=1");
+$curs1 = OCIparse($connection, "SELECT  status,po_date,pa_name,supplier_id,supplier_name,addr,contact FROM 'DBA'.purchase_sk WHERE po_number = '$po_number' AND rownum=1");
 if(OCIError($curs1))
 	{
 	OCIlogoff($connection);
@@ -45,7 +45,7 @@ if(OCIError($curs1))
 	header("Location: $url");
 	exit;
 	};
-$curs2 = OCIparse($connection, "SELECT  product_id,product_name,unit,unit_price,qty_order,qty_rec FROM  ora00079.purchase_sk WHERE po_number = '$po_number'");
+$curs2 = OCIparse($connection, "SELECT  product_id,product_name,unit,unit_price,qty_order,qty_rec FROM  'DBA'.purchase_sk WHERE po_number = '$po_number'");
 /*  	3. Assign Oracle table columns names to PHP variables
 *	   note 1: The definition of these columns must always be done before an execution; 
 *	   note 2: Oracle always uses capital letters for the columns of a table
